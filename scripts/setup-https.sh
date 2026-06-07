@@ -58,6 +58,10 @@ update_env SSL_ENABLED true
 update_env NEXT_PUBLIC_APP_URL "$APP_URL"
 update_env NEXTAUTH_URL "$APP_URL"
 update_env IMMG_DOMAIN "$IMMG_DOMAIN"
+
+sed "s/\\${IMMG_DOMAIN}/${IMMG_DOMAIN}/g" deploy/nginx/immg-https.conf.template \
+  > deploy/nginx/immg-https-active.conf
+update_env NGINX_CONF_PATH "./deploy/nginx/immg-https-active.conf"
 rm -f .env.bak
 
 # shellcheck disable=SC1091
