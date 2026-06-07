@@ -1,0 +1,19 @@
+{
+  "name": "immg",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w web",
+    "build": "npm run build -w web",
+    "start": "npm run start -w web",
+    "lint": "npm run lint -w web",
+    "test": "npm run test -w web",
+    "db:push": "cd packages/db && npx prisma db push",
+    "db:generate": "cd packages/db && npx prisma generate",
+    "ingest:ircc": "npm run ingest:ircc -w web"
+  }
+}

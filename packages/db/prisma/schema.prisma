@@ -1,0 +1,113 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  locale    String   @default("fr")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile       ImmigrationProfile?
+  documents     Document[]
+  applications  Application[]
+  conversations Conversation[]
+  procedureSteps ProcedureStep[]
+}
+
+model ImmigrationProfile {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age                   Int?
+  educationLevel        String?
+  firstLanguageClb      Int?
+  secondLanguageClb     Int?
+  foreignWorkYears      Int      @default(0)
+  canadianWorkYears     Int      @default(0)
+  hasCanadianEducation  Boolean  @default(false)
+  hasCanadianJobOffer   Boolean  @default(false)
+  hasSiblingInCanada    Boolean  @default(false)
+  nocCode               String?
+  settlementFunds       Int?
+  targetProgram         String?
+  crsScore              Int?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   @default("cv")
+  filename  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model RegulationChunk {
+  id         String   @id @default(cuid())
+  sourceUrl  String
+  title      String
+  content    String   @db.Text
+  publishedAt DateTime?
+  createdAt  DateTime @default(now())
+  // embedding stored via raw SQL (pgvector)
+}
+
+model Application {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company      String
+  title        String
+  jobUrl       String?
+  status       String    @default("draft")
+  coverLetter  String?   @db.Text
+  scheduledAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model ProcedureStep {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program     String
+  stepKey     String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, program, stepKey])
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentId   String
+  title     String?
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String       @db.Text
+  createdAt      DateTime     @default(now())
+}

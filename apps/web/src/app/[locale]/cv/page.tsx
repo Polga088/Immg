@@ -1,0 +1,30 @@
+import { setRequestLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
+import { CvClient } from "./cv-client";
+
+export default async function CvPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("cv");
+  const chat = await getTranslations("chat");
+
+  return (
+    <CvClient
+      locale={locale}
+      title={t("title")}
+      uploadLabel={t("upload")}
+      jobDescriptionLabel={t("jobDescription")}
+      scoreLabel={t("score")}
+      suggestionsLabel={t("suggestions")}
+      analyzeLabel={t("analyze")}
+      chatPlaceholder={chat("placeholder")}
+      chatSend={chat("send")}
+      chatThinking={chat("thinking")}
+      chatError={chat("error")}
+    />
+  );
+}

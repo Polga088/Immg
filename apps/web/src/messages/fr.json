@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "title": "Immg — Immigration Canada IA",
+    "description": "Plateforme d'accompagnement à l'immigration Canada avec agents IA"
+  },
+  "nav": {
+    "home": "Accueil",
+    "procedure": "Procédure",
+    "cv": "CV / ATS",
+    "regulation": "Réglementation",
+    "jobs": "Emploi",
+    "profile": "Profil"
+  },
+  "home": {
+    "title": "Votre assistant immigration Canada",
+    "subtitle": "4 agents IA spécialisés pour vous accompagner : réglementation, CV, emploi et procédure.",
+    "disclaimer": "Immg est un assistant de préparation. Il ne remplace pas un consultant réglementé (RCIC) ni un avocat.",
+    "agents": {
+      "regulation": {
+        "title": "Réglementation",
+        "desc": "Veille IRCC et analyse des nouveautés"
+      },
+      "cv": {
+        "title": "CV / ATS",
+        "desc": "Optimisez votre CV pour les systèmes ATS"
+      },
+      "job": {
+        "title": "Emploi",
+        "desc": "Recherche d'offres et lettres de motivation"
+      },
+      "procedure": {
+        "title": "Procédure",
+        "desc": "CRS, checklists et parcours immigration"
+      }
+    },
+    "cta": "Commencer"
+  },
+  "chat": {
+    "placeholder": "Posez votre question…",
+    "send": "Envoyer",
+    "thinking": "Réflexion en cours…",
+    "error": "Une erreur est survenue. Vérifiez qu'Ollama est démarré."
+  },
+  "procedure": {
+    "title": "Agent Procédure",
+    "crsTitle": "Calculateur CRS",
+    "crsScore": "Score CRS estimé",
+    "calculate": "Calculer",
+    "checklist": "Checklist",
+    "profileRequired": "Complétez votre profil pour un calcul précis."
+  },
+  "profile": {
+    "title": "Profil immigration",
+    "age": "Âge",
+    "education": "Niveau d'éducation",
+    "firstLanguageClb": "CLB langue officielle 1",
+    "secondLanguageClb": "CLB langue officielle 2",
+    "foreignWorkYears": "Années expérience à l'étranger",
+    "canadianWorkYears": "Années expérience au Canada",
+    "canadianEducation": "Études au Canada",
+    "canadianJobOffer": "Offre d'emploi au Canada",
+    "siblingInCanada": "Frère/sœur au Canada",
+    "save": "Enregistrer",
+    "saved": "Profil enregistré"
+  },
+  "cv": {
+    "title": "Agent CV / ATS",
+    "upload": "Téléverser CV (PDF/DOCX/TXT)",
+    "jobDescription": "Description du poste (optionnel)",
+    "score": "Score ATS",
+    "suggestions": "Suggestions",
+    "analyze": "Analyser"
+  },
+  "regulation": {
+    "title": "Agent Réglementation",
+    "searchPlaceholder": "Question sur la réglementation IRCC…",
+    "sources": "Sources",
+    "noSources": "Aucune source trouvée — réponse non fournie."
+  },
+  "jobs": {
+    "title": "Agent Emploi",
+    "addApplication": "Nouvelle candidature",
+    "company": "Entreprise",
+    "jobTitle": "Poste",
+    "jobUrl": "URL offre",
+    "status": "Statut",
+    "generateLetter": "Générer lettre",
+    "statuses": {
+      "draft": "Brouillon",
+      "ready": "Prêt",
+      "sent": "Envoyé",
+      "interview": "Entretien",
+      "rejected": "Refusé",
+      "offer": "Offre"
+    }
+  },
+  "health": {
+    "ok": "Opérationnel",
+    "ollamaDown": "Ollama indisponible",
+    "dbDown": "Base de données indisponible"
+  }
+}
