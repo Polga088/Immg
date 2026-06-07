@@ -53,7 +53,7 @@ ufw enable
 ## 2. Cloner et configurer
 
 ```bash
-git clone <repo-immg> /opt/immg
+git clone https://github.com/Polga088/Immg.git /opt/immg
 cd /opt/immg
 
 cp .env.production.example .env
