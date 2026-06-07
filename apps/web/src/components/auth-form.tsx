@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 
 interface AuthFormProps {
@@ -22,7 +22,6 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ mode, labels }: AuthFormProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
 
@@ -66,8 +65,14 @@ export function AuthForm({ mode, labels }: AuthFormProps) {
         return;
       }
 
-      router.push(mode === "register" ? "/profile" : callbackUrl);
-      router.refresh();
+      const path =
+        mode === "register"
+          ? "/fr/profile"
+          : callbackUrl.startsWith("/fr") || callbackUrl.startsWith("/en")
+            ? callbackUrl
+            : `/fr${callbackUrl.startsWith("/") ? callbackUrl : `/${callbackUrl}`}`;
+
+      window.location.href = path;
     } catch {
       setError(labels.errorGeneric);
     } finally {

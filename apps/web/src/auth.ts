@@ -3,8 +3,17 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@immg/db";
 
+const authUrl =
+  process.env.AUTH_URL ??
+  process.env.NEXTAUTH_URL ??
+  process.env.NEXT_PUBLIC_APP_URL ??
+  "http://localhost:3000";
+
+const useSecureCookies = authUrl.startsWith("https://");
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
+  useSecureCookies,
   providers: [
     Credentials({
       credentials: {
@@ -16,7 +25,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = credentials?.password as string | undefined;
         if (!email || !password) return null;
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+          where: { email: email.toLowerCase().trim() },
+        });
         if (!user?.passwordHash) return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);
