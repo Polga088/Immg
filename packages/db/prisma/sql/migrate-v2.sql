@@ -21,3 +21,13 @@ WHERE "contentHash" = '' OR "contentHash" IS NULL;
 -- User.passwordHash (auth)
 ALTER TABLE "User"
   ADD COLUMN IF NOT EXISTS "passwordHash" TEXT;
+
+-- Dedupe before unique constraint on (sourceUrl, chunkIndex)
+DELETE FROM "RegulationChunk" a
+USING "RegulationChunk" b
+WHERE a.id > b.id
+  AND a."sourceUrl" = b."sourceUrl"
+  AND a."chunkIndex" = b."chunkIndex";
+
+CREATE UNIQUE INDEX IF NOT EXISTS "RegulationChunk_sourceUrl_chunkIndex_key"
+  ON "RegulationChunk" ("sourceUrl", "chunkIndex");

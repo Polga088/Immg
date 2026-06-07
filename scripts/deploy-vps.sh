@@ -25,7 +25,7 @@ docker run --rm \
   --network "${NETWORK}" \
   -v "$(pwd):/app" -w /app \
   --env-file .env \
-  node:22-alpine sh -c "npm ci --omit=dev && cd packages/db && npx prisma db push"
+  node:22-alpine sh -c "npm ci --omit=dev && cd packages/db && npx prisma db push --accept-data-loss"
 
 docker compose -f docker-compose.prod.yml up -d
 
