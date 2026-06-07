@@ -65,7 +65,7 @@ model RegulationChunk {
   contentHash String    @default("")
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  updatedAt   DateTime  @default(now()) @updatedAt
   // embedding vector(768) managed via raw SQL (pgvector)
 
   @@unique([sourceUrl, chunkIndex])

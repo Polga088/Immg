@@ -14,6 +14,11 @@ docker compose -f docker-compose.prod.yml up -d postgres ollama
 echo "Waiting for postgres..."
 sleep 8
 
+echo "Running SQL pre-migration (existing data)..."
+docker compose -f docker-compose.prod.yml exec -T postgres \
+  psql -U immg -d immg -v ON_ERROR_STOP=1 \
+  < packages/db/prisma/sql/migrate-v2.sql
+
 echo "Running database migrations..."
 NETWORK=$(docker network ls --format '{{.Name}}' | grep immg-internal | head -1)
 docker run --rm \
