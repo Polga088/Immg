@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.68",
-    "@ai-sdk/openai": "^2.0.0",
     "@immg/db": "file:../../packages/db",
     "@mastra/core": "^1.8.0",
     "ai": "^6.0.0",
