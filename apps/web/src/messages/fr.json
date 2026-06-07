@@ -18,22 +18,28 @@
     "agents": {
       "regulation": {
         "title": "Réglementation",
-        "desc": "Veille IRCC et analyse des nouveautés"
+        "desc": "Veille IRCC et analyse des nouveautés",
+        "mascot": "Mira"
       },
       "cv": {
         "title": "CV / ATS",
-        "desc": "Optimisez votre CV pour les systèmes ATS"
+        "desc": "Optimisez votre CV pour les systèmes ATS",
+        "mascot": "Rio"
       },
       "job": {
         "title": "Emploi",
-        "desc": "Recherche d'offres et lettres de motivation"
+        "desc": "Recherche d'offres et lettres de motivation",
+        "mascot": "Jade"
       },
       "procedure": {
         "title": "Procédure",
-        "desc": "CRS, checklists et parcours immigration"
+        "desc": "CRS, checklists et parcours immigration",
+        "mascot": "Atlas"
       }
     },
-    "cta": "Commencer"
+    "cta": "Commencer",
+    "meetAgents": "Rencontrez votre équipe IA",
+    "teamSubtitle": "votre escouade immigration Canada"
   },
   "chat": {
     "placeholder": "Posez votre question…",

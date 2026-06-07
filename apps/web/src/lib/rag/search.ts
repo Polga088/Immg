@@ -85,7 +85,15 @@ export async function searchRegulations(
   const queryLower = query.toLowerCase();
   const queryWords = queryLower.split(/\s+/).filter((w) => w.length > 3);
 
-  const scored = chunks.map((chunk) => {
+  interface ChunkRow {
+    title: string;
+    content: string;
+    sourceUrl: string;
+  }
+
+  type ScoredChunk = ChunkRow & { score: number };
+
+  const scored: ScoredChunk[] = chunks.map((chunk: ChunkRow) => {
     const text = `${chunk.title} ${chunk.content}`.toLowerCase();
     let score = 0;
     for (const word of queryWords) {
@@ -95,8 +103,8 @@ export async function searchRegulations(
   });
 
   return scored
-    .filter((c) => c.score > 0)
-    .sort((a, b) => b.score - a.score)
+    .filter((c: ScoredChunk) => c.score > 0)
+    .sort((a: ScoredChunk, b: ScoredChunk) => b.score - a.score)
     .slice(0, limit)
     .map((c) => ({
       title: c.title,

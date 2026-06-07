@@ -96,7 +96,7 @@ export function ChatPanel({
   }
 
   return (
-    <div className="flex flex-col h-full min-h-[400px] rounded-xl border border-zinc-200 bg-white shadow-sm">
+    <div className="flex flex-col h-full min-h-[400px] rounded-2xl glass border border-white/60 shadow-sm overflow-hidden">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <p className="text-sm text-zinc-400 text-center py-8">{placeholder}</p>
@@ -107,8 +107,8 @@ export function ChatPanel({
             className={cn(
               "rounded-lg px-4 py-2 text-sm max-w-[85%] whitespace-pre-wrap",
               m.role === "user"
-                ? "ml-auto bg-blue-600 text-white"
-                : "bg-zinc-100 text-zinc-800",
+                ? "ml-auto bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+                : "bg-white/90 text-zinc-800 ring-1 ring-zinc-100",
             )}
           >
             {m.content || (isLoading && m.role === "assistant" ? "…" : "")}
@@ -130,7 +130,7 @@ export function ChatPanel({
         <button
           type="submit"
           disabled={isLoading || !input.trim()}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
           {sendLabel}
         </button>

@@ -18,22 +18,28 @@
     "agents": {
       "regulation": {
         "title": "Regulations",
-        "desc": "IRCC monitoring and change analysis"
+        "desc": "IRCC monitoring and change analysis",
+        "mascot": "Mira"
       },
       "cv": {
         "title": "CV / ATS",
-        "desc": "Optimize your resume for ATS systems"
+        "desc": "Optimize your resume for ATS systems",
+        "mascot": "Rio"
       },
       "job": {
         "title": "Jobs",
-        "desc": "Job search and cover letters"
+        "desc": "Job search and cover letters",
+        "mascot": "Jade"
       },
       "procedure": {
         "title": "Procedure",
-        "desc": "CRS, checklists and immigration pathway"
+        "desc": "CRS, checklists and immigration pathway",
+        "mascot": "Atlas"
       }
     },
-    "cta": "Get started"
+    "cta": "Get started",
+    "meetAgents": "Meet your AI team",
+    "teamSubtitle": "your Canada immigration squad"
   },
   "chat": {
     "placeholder": "Ask your question…",

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChatPanel } from "@/components/chat-panel";
+import { AgentHeader } from "@/components/agent-card";
 
 interface CRSBreakdown {
   total: number;
@@ -38,13 +39,13 @@ export function ProcedureClient(props: ProcedureClientProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{props.title}</h1>
+      <AgentHeader agent="procedure" title={props.title} locale={props.locale} />
 
-      <div className="rounded-xl border border-zinc-200 p-6 bg-white">
+      <div className="rounded-2xl glass border border-white/60 p-6 shadow-sm">
         <h2 className="font-semibold mb-4">{props.crsTitle}</h2>
         {crs ? (
           <div className="space-y-2">
-            <p className="text-3xl font-bold text-blue-600">
+            <p className="text-3xl font-bold bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">
               {props.crsScoreLabel}: {crs.total}
             </p>
             <div className="grid grid-cols-2 gap-2 text-sm text-zinc-600">
@@ -66,7 +67,7 @@ export function ProcedureClient(props: ProcedureClientProps) {
               .then((r) => r.json())
               .then((d) => setCrs(d.breakdown))
           }
-          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+          className="mt-4 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 px-5 py-2 text-sm text-white hover:opacity-90 transition-opacity"
         >
           {props.calculateLabel}
         </button>

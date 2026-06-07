@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChatPanel } from "@/components/chat-panel";
+import { AgentHeader } from "@/components/agent-card";
 
 interface ATSResult {
   score: number;
@@ -47,9 +48,9 @@ export function CvClient(props: CvClientProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{props.title}</h1>
+      <AgentHeader agent="cv" title={props.title} locale={props.locale} />
 
-      <div className="rounded-xl border border-zinc-200 p-6 bg-white space-y-4">
+      <div className="rounded-2xl glass border border-white/60 p-6 shadow-sm space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">{props.uploadLabel}</label>
           <textarea
@@ -74,14 +75,14 @@ export function CvClient(props: CvClientProps) {
         <button
           onClick={analyze}
           disabled={loading || !resumeText.trim()}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-5 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
           {props.analyzeLabel}
         </button>
 
         {result && (
           <div className="space-y-2 pt-4 border-t">
-            <p className="text-2xl font-bold text-blue-600">
+            <p className="text-2xl font-bold bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
               {props.scoreLabel}: {result.score}/100
             </p>
             {result.issues.length > 0 && (

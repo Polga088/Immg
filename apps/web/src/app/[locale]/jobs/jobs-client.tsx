@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChatPanel } from "@/components/chat-panel";
+import { AgentHeader } from "@/components/agent-card";
 
 interface Application {
   id: string;
@@ -73,9 +74,9 @@ export function JobsClient(props: JobsClientProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{props.title}</h1>
+      <AgentHeader agent="job" title={props.title} locale={props.locale} />
 
-      <div className="rounded-xl border border-zinc-200 p-6 bg-white space-y-4">
+      <div className="rounded-2xl glass border border-white/60 p-6 shadow-sm space-y-4">
         <h2 className="font-semibold">{props.addLabel}</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           <input
@@ -100,7 +101,7 @@ export function JobsClient(props: JobsClientProps) {
         <button
           onClick={addApplication}
           disabled={!company || !title}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-full bg-gradient-to-r from-amber-500 to-orange-600 px-5 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
           {props.addLabel}
         </button>
