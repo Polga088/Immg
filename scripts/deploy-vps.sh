@@ -15,8 +15,9 @@ echo "Waiting for postgres..."
 sleep 8
 
 echo "Running database migrations..."
+NETWORK=$(docker network ls --format '{{.Name}}' | grep immg-internal | head -1)
 docker run --rm \
-  --network "$(basename "$(pwd)")_immg-internal" \
+  --network "${NETWORK}" \
   -v "$(pwd):/app" -w /app \
   --env-file .env \
   node:22-alpine sh -c "npm ci --omit=dev && cd packages/db && npx prisma db push"
