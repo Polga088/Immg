@@ -17,24 +17,32 @@ function stripLocale(pathname: string): string {
 
 const publicPaths = new Set(["/", "/login", "/register"]);
 
+function isPublicApi(pathname: string): boolean {
+  return (
+    pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/health")
+  );
+}
+
 export default auth((req) => {
   const pathname = req.nextUrl.pathname;
-  const pathWithoutLocale = stripLocale(pathname);
-  const isPublic = publicPaths.has(pathWithoutLocale);
-  const isAuthApi = pathname.startsWith("/api/auth");
-  const isHealthApi = pathname.startsWith("/api/health");
 
-  if (!req.auth && !isPublic && !isAuthApi && !isHealthApi) {
-    if (pathname.startsWith("/api/")) {
+  // API routes must never get a locale prefix (/fr/api/... breaks register & health)
+  if (pathname.startsWith("/api/")) {
+    if (!req.auth && !isPublicApi(pathname)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    return NextResponse.next();
+  }
 
+  const pathWithoutLocale = stripLocale(pathname);
+  const isPublic = publicPaths.has(pathWithoutLocale);
+
+  if (!req.auth && !isPublic) {
     const localeMatch = pathname.match(new RegExp(`^/(${locales})`));
     const locale = localeMatch?.[1] ?? routing.defaultLocale;
     const loginUrl = new URL(`/${locale}/login`, req.nextUrl.origin);
-    if (!pathname.startsWith("/api/")) {
-      loginUrl.searchParams.set("callbackUrl", pathname);
-    }
+    loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 

@@ -44,11 +44,13 @@ export function AuthForm({ mode, labels }: AuthFormProps) {
           body: JSON.stringify({ email, password, name: name || undefined }),
         });
         if (!res.ok) {
-          const data = await res.json();
+          const data = await res.json().catch(() => ({}));
           setError(
             data.error === "Email already registered"
               ? labels.errorEmailTaken
-              : labels.errorGeneric,
+              : data.error === "Invalid input"
+                ? labels.errorGeneric
+                : `${labels.errorGeneric}${data.error ? ` (${data.error})` : ""}`,
           );
           return;
         }
