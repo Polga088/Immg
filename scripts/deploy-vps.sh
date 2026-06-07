@@ -29,6 +29,15 @@ docker run --rm \
 
 docker compose -f docker-compose.prod.yml up -d
 
+echo "Waiting for services..."
+sleep 5
+docker compose -f docker-compose.prod.yml ps
+
+if ! docker compose -f docker-compose.prod.yml exec -T nginx nginx -t 2>/dev/null; then
+  echo "WARNING: nginx config test failed — check logs:"
+  docker compose -f docker-compose.prod.yml logs nginx --tail 30
+fi
+
 echo "Pulling Ollama models (first deploy only, may take several minutes)..."
 docker compose -f docker-compose.prod.yml exec -T ollama ollama pull "${OLLAMA_MODEL:-qwen2.5:7b}" || true
 docker compose -f docker-compose.prod.yml exec -T ollama ollama pull "${OLLAMA_EMBED_MODEL:-nomic-embed-text}" || true
@@ -39,6 +48,7 @@ if [ -f .env ]; then
   source .env
   BASE="${NEXT_PUBLIC_APP_URL:-http://localhost:${NGINX_HTTP_PORT:-8080}}"
   echo "Check: curl ${BASE}/api/health"
+  echo "Ingest IRCC: ./scripts/ingest-ircc-vps.sh"
 else
   echo "Check: curl http://localhost:${NGINX_HTTP_PORT:-8080}/api/health"
 fi

@@ -185,7 +185,7 @@ Sur le VPS, crontab :
 
 ```cron
 # Ingest IRCC chaque dimanche 3h
-0 3 * * 0 cd /opt/immg && docker compose -f docker-compose.prod.yml exec -T web npm run ingest:ircc
+0 3 * * 0 cd /opt/immg && ./scripts/ingest-ircc-vps.sh
 
 # Backup Postgres quotidien 4h
 0 4 * * * cd /opt/immg && ./scripts/backup-postgres.sh

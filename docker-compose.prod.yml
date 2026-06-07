@@ -67,8 +67,8 @@ services:
       SSL_ENABLED: ${SSL_ENABLED:-false}
       IMMG_DOMAIN: ${IMMG_DOMAIN:-_}
     volumes:
-      - ./deploy/nginx/immg-http.conf.template:/etc/nginx/templates/immg-http.conf.template:ro
-      - ./deploy/nginx/immg-https.conf.template:/etc/nginx/templates/immg-https.conf.template:ro
+      - ./deploy/nginx/immg-http.conf.template:/etc/immg/templates/immg-http.conf.template:ro
+      - ./deploy/nginx/immg-https.conf.template:/etc/immg/templates/immg-https.conf.template:ro
       - ./deploy/nginx/docker-entrypoint.sh:/docker-entrypoint.d/40-immg-config.sh:ro
       - certbot_www:/var/www/certbot:ro
       - certbot_certs:/etc/letsencrypt:ro
