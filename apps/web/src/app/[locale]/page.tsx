@@ -35,7 +35,7 @@ export default async function HomePage({
           {t("subtitle")}
         </p>
         <Link
-          href="/procedure"
+          href="/register"
           className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 px-8 py-3.5 text-white font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all"
         >
           {t("cta")} →

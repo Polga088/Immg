@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
+import { requireAuthWithProfile } from "@/lib/auth/guards";
 import { RegulationClient } from "./regulation-client";
 
 export default async function RegulationPage({
@@ -9,6 +10,7 @@ export default async function RegulationPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await requireAuthWithProfile();
   const t = await getTranslations("regulation");
   const chat = await getTranslations("chat");
 
@@ -17,8 +19,13 @@ export default async function RegulationPage({
       locale={locale}
       title={t("title")}
       searchPlaceholder={t("searchPlaceholder")}
+      searchLabel={t("search")}
       sourcesLabel={t("sources")}
       noSourcesLabel={t("noSources")}
+      watchTitle={t("watchTitle")}
+      watchEmpty={t("watchEmpty")}
+      watchNew={t("watchNew")}
+      watchUpdated={t("watchUpdated")}
       chatPlaceholder={chat("placeholder")}
       chatSend={chat("send")}
       chatThinking={chat("thinking")}

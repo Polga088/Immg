@@ -101,18 +101,73 @@ curl https://immg.votredomaine.com/api/health
 # {"status":"ok","ollama":true,"database":true}
 ```
 
-## 5. HTTPS Let's Encrypt
+## 5. Domaine + HTTPS
 
-Avec domaine pointant vers le VPS :
+### 5.1 DNS
 
-```bash
-docker compose -f docker-compose.prod.yml run --rm certbot certonly \
-  --webroot -w /var/www/certbot \
-  -d immg.votredomaine.com \
-  --email vous@email.com --agree-tos --no-eff-email
+Créez un enregistrement **A** pointant vers l'IP du VPS :
+
+```
+immg.votredomaine.com  →  109.123.254.120
 ```
 
-Puis activer le bloc HTTPS dans `deploy/nginx/immg.conf` et redémarrer nginx.
+Attendez la propagation DNS (5–30 min), puis vérifiez :
+
+```bash
+dig +short immg.votredomaine.com
+```
+
+### 5.2 Choisir le mode HTTPS
+
+| Situation | Script | Description |
+|-----------|--------|-------------|
+| **CRM Texta sur :80** (votre cas actuel) | `setup-https-host.sh` | SSL sur le nginx **système**, Immg reste sur `:8080` |
+| VPS dédié, ports 80/443 libres | `setup-https.sh` | SSL entièrement dans Docker + certbot |
+
+### 5.3 Mode recommandé — nginx hôte (coexistence CRM)
+
+Immg écoute en local sur **8080**, le nginx du serveur termine le HTTPS :
+
+```bash
+cd /opt/immg
+
+# Éditer .env
+nano .env
+# IMMG_DOMAIN=immg.votredomaine.com
+# CERTBOT_EMAIL=vous@email.com
+# NEXT_PUBLIC_APP_URL=https://immg.votredomaine.com
+# NEXTAUTH_URL=https://immg.votredomaine.com
+
+./scripts/deploy-vps.sh
+
+# Activer HTTPS (root, sur le VPS)
+sudo IMMG_DOMAIN=immg.votredomaine.com CERTBOT_EMAIL=vous@email.com ./scripts/setup-https-host.sh
+```
+
+Alternative manuelle : copier `deploy/nginx/host-immg.conf.example` vers `/etc/nginx/sites-available/immg`.
+
+### 5.4 Mode Docker autonome (ports 80/443 libres)
+
+```bash
+cd /opt/immg
+# .env : IMMG_DOMAIN, CERTBOT_EMAIL, SSL_ENABLED=false initialement
+chmod +x scripts/setup-https.sh
+./scripts/setup-https.sh
+```
+
+Le script obtient le certificat Let's Encrypt, active `SSL_ENABLED=true` et redémarre nginx.
+
+### 5.5 Vérifier HTTPS
+
+```bash
+curl -s https://immg.votredomaine.com/api/health
+# {"status":"ok","ollama":true,"database":true}
+```
+
+### 5.6 Renouvellement certificats
+
+- **Mode hôte** : certbot timer systemd (`certbot renew`)
+- **Mode Docker** : service `certbot` dans docker-compose (renew automatique toutes les 12h)
 
 ## 6. Modèles Ollama sur VPS CPU
 
@@ -131,6 +186,9 @@ Sur le VPS, crontab :
 ```cron
 # Ingest IRCC chaque dimanche 3h
 0 3 * * 0 cd /opt/immg && docker compose -f docker-compose.prod.yml exec -T web npm run ingest:ircc
+
+# Backup Postgres quotidien 4h
+0 4 * * * cd /opt/immg && ./scripts/backup-postgres.sh
 ```
 
 ## 8. Mises à jour

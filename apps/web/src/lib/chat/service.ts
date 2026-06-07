@@ -2,6 +2,11 @@ import type { AgentId } from "@/lib/ai/config";
 import { loadPrompt } from "@/agents/prompts/loader";
 import { streamWithProvider } from "@/lib/ai/provider";
 import { searchRegulations } from "@/lib/rag/search";
+import {
+  formatSourcesBlock,
+  noSourceMessage,
+  buildRegulationSystemPrompt,
+} from "@/lib/rag/citations";
 import { scoreATS } from "@/lib/ats/scorer";
 import { calculateCRS, explainCRS, type EducationLevel } from "@/lib/crs/calculator";
 
@@ -16,17 +21,9 @@ export async function buildAgentContext(
   if (agentId === "regulation") {
     const results = await searchRegulations(userMessage);
     if (results.length === 0) {
-      context =
-        locale === "fr"
-          ? "Aucune source trouvée dans la base IRCC."
-          : "No sources found in IRCC database.";
+      context = `STRICT INSTRUCTION: ${noSourceMessage(locale)} Do NOT invent any regulatory information.`;
     } else {
-      context = results
-        .map(
-          (r) =>
-            `[Source: ${r.sourceUrl}]\nTitle: ${r.title}\n${r.content}`,
-        )
-        .join("\n\n---\n\n");
+      context = `${buildRegulationSystemPrompt(locale)}\n\n${formatSourcesBlock(results)}`;
     }
   }
 

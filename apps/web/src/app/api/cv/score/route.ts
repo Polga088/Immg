@@ -1,10 +1,14 @@
 import { scoreATS, parseResumeText } from "@/lib/ats/scorer";
 import { prisma } from "@immg/db";
-import { DEMO_USER_ID } from "@/lib/utils";
-import { ensureDemoUser } from "@/lib/profile/service";
+import {
+  AuthError,
+  requireSessionUserId,
+  unauthorizedResponse,
+} from "@/lib/auth/session";
 
 export async function POST(req: Request) {
   try {
+    const userId = await requireSessionUserId();
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const textInput = formData.get("text") as string | null;
@@ -25,10 +29,9 @@ export async function POST(req: Request) {
     const parsed = parseResumeText(text, filename);
     const result = scoreATS(parsed, jobDescription ?? undefined);
 
-    await ensureDemoUser();
     await prisma.document.create({
       data: {
-        userId: DEMO_USER_ID,
+        userId,
         type: "cv",
         filename,
         content: parsed,
@@ -37,6 +40,7 @@ export async function POST(req: Request) {
 
     return Response.json({ ...result, parsedLength: parsed.length });
   } catch (error) {
+    if (error instanceof AuthError) return unauthorizedResponse();
     console.error(error);
     return Response.json({ error: "CV analysis failed" }, { status: 500 });
   }

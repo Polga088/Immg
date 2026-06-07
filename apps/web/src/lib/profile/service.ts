@@ -1,39 +1,12 @@
 import { prisma } from "@immg/db";
-import { DEMO_USER_ID } from "@/lib/utils";
+import { calculateCRS } from "@/lib/crs/calculator";
 import type { EducationLevel } from "@/lib/crs/calculator";
 
-export async function ensureDemoUser() {
-  return prisma.user.upsert({
-    where: { email: "demo@immg.local" },
-    update: {},
-    create: {
-      id: DEMO_USER_ID,
-      email: "demo@immg.local",
-      name: "Demo User",
-      locale: "fr",
-    },
-  });
-}
-
-export async function getOrCreateProfile(userId: string = DEMO_USER_ID) {
-  await ensureDemoUser();
-
+export async function getOrCreateProfile(userId: string) {
   return prisma.immigrationProfile.upsert({
     where: { userId },
     update: {},
-    create: {
-      userId,
-      age: 30,
-      educationLevel: "bachelors",
-      firstLanguageClb: 8,
-      secondLanguageClb: 5,
-      foreignWorkYears: 3,
-      canadianWorkYears: 0,
-      hasCanadianEducation: false,
-      hasCanadianJobOffer: false,
-      hasSiblingInCanada: false,
-      targetProgram: "express_entry",
-    },
+    create: { userId },
   });
 }
 
@@ -49,11 +22,12 @@ export async function updateProfile(
     hasCanadianEducation?: boolean;
     hasCanadianJobOffer?: boolean;
     hasSiblingInCanada?: boolean;
+    nocCode?: string;
+    settlementFunds?: number;
+    targetProgram?: string;
     crsScore?: number;
   },
 ) {
-  await ensureDemoUser();
-
   const profile = await prisma.immigrationProfile.upsert({
     where: { userId },
     update: data,
@@ -61,6 +35,16 @@ export async function updateProfile(
   });
 
   return profile;
+}
+
+export async function saveProfileWithCRS(
+  userId: string,
+  data: Parameters<typeof updateProfile>[1],
+) {
+  const profile = await updateProfile(userId, data);
+  const crs = calculateCRS(profileToCRSInput(profile));
+  const updated = await updateProfile(userId, { crsScore: crs.total });
+  return { profile: updated, crs };
 }
 
 export function profileToCRSInput(profile: {

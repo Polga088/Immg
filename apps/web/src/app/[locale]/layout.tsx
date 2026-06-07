@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Navbar } from "@/components/navbar";
 import { Disclaimer } from "@/components/disclaimer";
+import { Providers } from "@/components/providers";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -27,11 +28,13 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <Navbar />
-      <main className="mx-auto max-w-6xl px-4 py-6 space-y-4">
-        <Disclaimer />
-        {children}
-      </main>
+      <Providers>
+        <Navbar />
+        <main className="mx-auto max-w-6xl px-4 py-6 space-y-4">
+          <Disclaimer />
+          {children}
+        </main>
+      </Providers>
     </NextIntlClientProvider>
   );
 }

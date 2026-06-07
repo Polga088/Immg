@@ -1,0 +1,6 @@
+# À utiliser avec setup-https.sh ou quand SSL_ENABLED=true
+# docker compose -f docker-compose.prod.yml -f docker-compose.https.yml up -d
+services:
+  nginx:
+    ports:
+      - "${NGINX_HTTPS_PORT:-443}:443"

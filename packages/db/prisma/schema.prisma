@@ -10,12 +10,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  locale    String   @default("fr")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String?
+  locale       String   @default("fr")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   profile       ImmigrationProfile?
   documents     Document[]
@@ -56,13 +57,30 @@ model Document {
 }
 
 model RegulationChunk {
+  id          String    @id @default(cuid())
+  sourceUrl   String
+  title       String
+  content     String    @db.Text
+  chunkIndex  Int       @default(0)
+  contentHash String    @default("")
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  // embedding vector(768) managed via raw SQL (pgvector)
+
+  @@unique([sourceUrl, chunkIndex])
+  @@index([sourceUrl])
+}
+
+model RegulationChange {
   id         String   @id @default(cuid())
   sourceUrl  String
   title      String
-  content    String   @db.Text
-  publishedAt DateTime?
-  createdAt  DateTime @default(now())
-  // embedding stored via raw SQL (pgvector)
+  changeType String
+  detectedAt DateTime @default(now())
+  summary    String?  @db.Text
+
+  @@index([detectedAt])
 }
 
 model Application {

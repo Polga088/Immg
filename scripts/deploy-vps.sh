@@ -28,4 +28,12 @@ echo "Pulling Ollama models (first deploy only, may take several minutes)..."
 docker compose -f docker-compose.prod.yml exec -T ollama ollama pull "${OLLAMA_MODEL:-qwen2.5:7b}" || true
 docker compose -f docker-compose.prod.yml exec -T ollama ollama pull "${OLLAMA_EMBED_MODEL:-nomic-embed-text}" || true
 
-echo "Deploy complete. Check: curl http://localhost/api/health"
+echo "Deploy complete."
+if [ -f .env ]; then
+  # shellcheck disable=SC1091
+  source .env
+  BASE="${NEXT_PUBLIC_APP_URL:-http://localhost:${NGINX_HTTP_PORT:-8080}}"
+  echo "Check: curl ${BASE}/api/health"
+else
+  echo "Check: curl http://localhost:${NGINX_HTTP_PORT:-8080}/api/health"
+fi

@@ -5,11 +5,14 @@
   },
   "nav": {
     "home": "Home",
+    "dashboard": "Dashboard",
     "procedure": "Procedure",
     "cv": "CV / ATS",
     "regulation": "Regulations",
     "jobs": "Jobs",
-    "profile": "Profile"
+    "profile": "Profile",
+    "login": "Sign in",
+    "logout": "Sign out"
   },
   "home": {
     "title": "Your Canada immigration assistant",
@@ -51,14 +54,43 @@
     "title": "Procedure Agent",
     "crsTitle": "CRS Calculator",
     "crsScore": "Estimated CRS score",
-    "calculate": "Calculate",
-    "checklist": "Checklist",
-    "profileRequired": "Complete your profile for an accurate calculation."
+    "calculate": "Recalculate",
+    "checklist": "Immigration checklist",
+    "progress": "Progress",
+    "pendingDocuments": "Documents to prepare",
+    "profileRequired": "Complete your profile for an accurate calculation.",
+    "steps": {
+      "language_test": "Take an official language test (IELTS, CELPIP, TEF)",
+      "education_assessment": "Get Educational Credential Assessment (ECA)",
+      "gather_documents": "Gather required documents",
+      "create_express_entry_profile": "Create Express Entry profile on IRCC",
+      "submit_profile": "Submit profile to the pool",
+      "wait_for_ita": "Wait for Invitation to Apply (ITA)",
+      "medical_exam": "Complete medical exam",
+      "submit_application": "Submit permanent residence application",
+      "check_province_criteria": "Review provincial program criteria (PNP)",
+      "apply_to_province": "Submit provincial nomination application",
+      "receive_nomination": "Receive provincial nomination certificate",
+      "update_crs_score": "Accept nomination in EE profile (+600 CRS)"
+    },
+    "documents": {
+      "language_test_results": "Language test results",
+      "eca_report": "ECA report (WES, IQAS, etc.)",
+      "passport": "Valid passport",
+      "work_references": "Employment reference letters",
+      "police_certificate": "Police certificate",
+      "medical_exam": "Medical exam results",
+      "proof_of_funds": "Proof of sufficient funds",
+      "employment_letter": "Employment / job offer letter",
+      "province_application": "Provincial application file",
+      "nomination_certificate": "Provincial nomination certificate"
+    }
   },
   "profile": {
     "title": "Immigration profile",
     "age": "Age",
     "education": "Education level",
+    "targetProgram": "Target program",
     "firstLanguageClb": "Official language 1 CLB",
     "secondLanguageClb": "Official language 2 CLB",
     "foreignWorkYears": "Foreign work experience (years)",
@@ -67,7 +99,21 @@
     "canadianJobOffer": "Canadian job offer",
     "siblingInCanada": "Sibling in Canada",
     "save": "Save",
-    "saved": "Profile saved"
+    "saved": "Profile saved",
+    "incompleteBanner": "Complete your profile (age, education, CLB, program) to unlock AI agents.",
+    "educationLevels": {
+      "secondary": "Secondary",
+      "one_year": "1-year post-secondary",
+      "two_year": "2-year post-secondary",
+      "bachelors": "Bachelor's degree",
+      "two_or_more": "Two or more degrees",
+      "masters": "Master's degree",
+      "phd": "PhD"
+    },
+    "programs": {
+      "express_entry": "Express Entry",
+      "pnp": "Provincial Nominee Program (PNP)"
+    }
   },
   "cv": {
     "title": "CV / ATS Agent",
@@ -80,8 +126,13 @@
   "regulation": {
     "title": "Regulations Agent",
     "searchPlaceholder": "Question about IRCC regulations…",
-    "sources": "Sources",
-    "noSources": "No sources found — no answer provided."
+    "search": "Search",
+    "sources": "Official IRCC sources",
+    "noSources": "No sources found — no answer provided.",
+    "watchTitle": "IRCC watch — recent changes",
+    "watchEmpty": "No recent changes detected. Automatic ingestion runs weekly.",
+    "watchNew": "New",
+    "watchUpdated": "Updated"
   },
   "jobs": {
     "title": "Jobs Agent",
@@ -104,5 +155,32 @@
     "ok": "Operational",
     "ollamaDown": "Ollama unavailable",
     "dbDown": "Database unavailable"
+  },
+  "auth": {
+    "loginTitle": "Sign in",
+    "registerTitle": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loginSubmit": "Sign in",
+    "registerSubmit": "Sign up",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "registerLink": "Sign up",
+    "loginLink": "Sign in",
+    "errorGeneric": "Something went wrong.",
+    "errorCredentials": "Invalid email or password.",
+    "errorEmailTaken": "This email is already registered."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Overview of your immigration journey",
+    "crsScore": "CRS score",
+    "profileComplete": "Profile complete",
+    "profileIncomplete": "Profile incomplete — complete it to unlock agents.",
+    "checklistProgress": "Procedure checklist",
+    "completeProfile": "Complete profile",
+    "goToProcedure": "View procedure",
+    "agentsTitle": "Your AI agents"
   }
 }

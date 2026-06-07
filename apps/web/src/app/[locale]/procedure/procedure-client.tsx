@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChatPanel } from "@/components/chat-panel";
 import { AgentHeader } from "@/components/agent-card";
+import { ProcedureChecklist } from "@/components/procedure-checklist";
 
 interface CRSBreakdown {
   total: number;
@@ -21,6 +22,11 @@ interface ProcedureClientProps {
   crsTitle: string;
   crsScoreLabel: string;
   calculateLabel: string;
+  checklistTitle: string;
+  progressLabel: string;
+  pendingDocsLabel: string;
+  stepLabels: Record<string, string>;
+  documentLabels: Record<string, string>;
   chatPlaceholder: string;
   chatSend: string;
   chatThinking: string;
@@ -72,6 +78,14 @@ export function ProcedureClient(props: ProcedureClientProps) {
           {props.calculateLabel}
         </button>
       </div>
+
+      <ProcedureChecklist
+        title={props.checklistTitle}
+        progressLabel={props.progressLabel}
+        pendingDocsLabel={props.pendingDocsLabel}
+        stepLabels={props.stepLabels}
+        documentLabels={props.documentLabels}
+      />
 
       <ChatPanel
         agentId="procedure"

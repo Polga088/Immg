@@ -1,0 +1,61 @@
+# Snippet à ajouter sur le nginx HÔTE (ex. CRM Texta sur :80/:443)
+# Remplacez immg.votredomaine.com par votre sous-domaine.
+#
+# 1. Copier : sudo cp deploy/nginx/host-immg.conf.example /etc/nginx/sites-available/immg
+# 2. Activer : sudo ln -sf /etc/nginx/sites-available/immg /etc/nginx/sites-enabled/immg
+# 3. Certificat : sudo certbot --nginx -d immg.votredomaine.com
+# 4. Recharger : sudo nginx -t && sudo systemctl reload nginx
+#
+# Immg Docker écoute en local sur le port 8080 (docker-compose NGINX_HTTP_PORT).
+
+# Phase 1 — HTTP seulement (avant certificat)
+# server {
+#     listen 80;
+#     server_name immg.votredomaine.com;
+#
+#     location /.well-known/acme-challenge/ {
+#         proxy_pass http://127.0.0.1:8080;
+#     }
+#
+#     location / {
+#         proxy_pass http://127.0.0.1:8080;
+#         proxy_http_version 1.1;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection "upgrade";
+#         proxy_read_timeout 120s;
+#     }
+# }
+
+# Phase 2 — HTTPS (généré par certbot --nginx, ou manuellement) :
+server {
+    listen 443 ssl http2;
+    server_name immg.votredomaine.com;
+
+    # Chemins créés par certbot sur l'hôte :
+    ssl_certificate     /etc/letsencrypt/live/immg.votredomaine.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/immg.votredomaine.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 120s;
+    }
+}
+
+server {
+    listen 80;
+    server_name immg.votredomaine.com;
+    return 301 https://$host$request_uri;
+}

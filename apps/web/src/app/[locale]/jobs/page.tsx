@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
+import { requireAuthWithProfile } from "@/lib/auth/guards";
 import { JobsClient } from "./jobs-client";
 
 export default async function JobsPage({
@@ -9,6 +10,7 @@ export default async function JobsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  await requireAuthWithProfile();
   const t = await getTranslations("jobs");
   const chat = await getTranslations("chat");
 

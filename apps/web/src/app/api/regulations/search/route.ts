@@ -1,6 +1,16 @@
-import { searchRegulations, ingestRegulationSources } from "@/lib/rag/search";
+import {
+  searchRegulations,
+  getRecentChanges,
+  ingestIrccCorpus,
+} from "@/lib/rag/search";
 import { generateWithProvider } from "@/lib/ai/provider";
 import { loadPrompt } from "@/agents/prompts/loader";
+import {
+  buildRegulationSystemPrompt,
+  ensureCitationsInAnswer,
+  formatSourcesBlock,
+  noSourceMessage,
+} from "@/lib/rag/citations";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -11,14 +21,17 @@ export async function GET(req: Request) {
   }
 
   const results = await searchRegulations(q);
-  return Response.json({ results });
+  return Response.json({ results, searchMode: "semantic" });
 }
 
 export async function POST(req: Request) {
   try {
-    const { query, locale = "fr" } = await req.json();
+    const { query, locale = "fr" } = (await req.json()) as {
+      query?: string;
+      locale?: "fr" | "en";
+    };
 
-    if (!query) {
+    if (!query?.trim()) {
       return Response.json({ error: "query required" }, { status: 400 });
     }
 
@@ -28,30 +41,34 @@ export async function POST(req: Request) {
       return Response.json({
         answer: null,
         sources: [],
-        message:
-          locale === "fr"
-            ? "Aucune source trouvée — réponse non fournie."
-            : "No sources found — no answer provided.",
+        message: noSourceMessage(locale),
       });
     }
 
-    const context = results
-      .map((r) => `[Source: ${r.sourceUrl}]\n${r.title}\n${r.content}`)
-      .join("\n\n");
-
+    const context = formatSourcesBlock(results);
     const { text } = await generateWithProvider({
-      system: loadPrompt("regulation"),
-      prompt: `Question: ${query}\n\nSources:\n${context}\n\nAnswer with citations.`,
+      system: `${loadPrompt("regulation")}\n\n${buildRegulationSystemPrompt(locale)}`,
+      prompt: `Question: ${query}\n\nOfficial IRCC sources:\n${context}\n\nAnswer with mandatory [Source: URL] citations for every claim.`,
     });
 
-    return Response.json({ answer: text, sources: results });
+    const answer = ensureCitationsInAnswer(text, results);
+
+    return Response.json({ answer, sources: results });
   } catch (error) {
     console.error(error);
     return Response.json({ error: "Regulation search failed" }, { status: 500 });
   }
 }
 
-export async function PUT() {
-  const count = await ingestRegulationSources();
-  return Response.json({ ingested: count });
+export async function PUT(req: Request) {
+  const secret = process.env.INGEST_SECRET;
+  if (secret) {
+    const auth = req.headers.get("authorization");
+    if (auth !== `Bearer ${secret}`) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
+  const stats = await ingestIrccCorpus({ useLiveFetch: true });
+  return Response.json(stats);
 }

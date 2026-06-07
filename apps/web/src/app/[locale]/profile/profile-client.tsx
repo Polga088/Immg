@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface Profile {
   age: number | null;
@@ -12,30 +13,52 @@ interface Profile {
   hasCanadianEducation: boolean;
   hasCanadianJobOffer: boolean;
   hasSiblingInCanada: boolean;
+  targetProgram: string | null;
+  crsScore: number | null;
 }
 
 interface ProfileClientProps {
   title: string;
   labels: Record<string, string>;
+  educationOptions: Record<string, string>;
+  programOptions: Record<string, string>;
 }
 
-export function ProfileClient({ title, labels }: ProfileClientProps) {
+export function ProfileClient({
+  title,
+  labels,
+  educationOptions,
+  programOptions,
+}: ProfileClientProps) {
+  const searchParams = useSearchParams();
+  const showIncomplete = searchParams.get("incomplete") === "1";
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [saved, setSaved] = useState(false);
+  const [complete, setComplete] = useState(false);
+  const [crsScore, setCrsScore] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/profile")
       .then((r) => r.json())
-      .then((d) => setProfile(d.profile));
+      .then((d) => {
+        setProfile(d.profile);
+        setComplete(d.complete);
+        setCrsScore(d.profile?.crsScore ?? null);
+      });
   }, []);
 
   async function save() {
     if (!profile) return;
-    await fetch("/api/profile", {
+    const res = await fetch("/api/profile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(profile),
     });
+    const data = await res.json();
+    setProfile(data.profile);
+    setComplete(data.complete);
+    setCrsScore(data.crs?.total ?? data.profile.crsScore);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -44,33 +67,49 @@ export function ProfileClient({ title, labels }: ProfileClientProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <div className="rounded-xl border border-zinc-200 p-6 bg-white grid gap-4 sm:grid-cols-2">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {crsScore != null && (
+          <span className="rounded-full bg-sky-100 text-sky-800 px-4 py-1.5 text-sm font-semibold">
+            CRS: {crsScore}
+          </span>
+        )}
+      </div>
+
+      {(showIncomplete || !complete) && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900">
+          {labels.incompleteBanner}
+        </div>
+      )}
+
+      <div className="rounded-2xl glass border border-white/60 p-6 grid gap-4 sm:grid-cols-2">
         <Field
           label={labels.age}
           type="number"
-          value={profile.age ?? 30}
-          onChange={(v) => setProfile({ ...profile, age: Number(v) })}
+          value={profile.age ?? ""}
+          onChange={(v) => setProfile({ ...profile, age: v ? Number(v) : null })}
         />
         <Field
           label={labels.education}
-          value={profile.educationLevel ?? "bachelors"}
-          onChange={(v) => setProfile({ ...profile, educationLevel: v })}
-          options={[
-            "secondary",
-            "one_year_post_secondary",
-            "two_year_post_secondary",
-            "bachelors",
-            "two_or_more_degrees",
-            "masters",
-            "phd",
-          ]}
+          value={profile.educationLevel ?? ""}
+          onChange={(v) => setProfile({ ...profile, educationLevel: v || null })}
+          options={Object.keys(educationOptions)}
+          optionLabels={educationOptions}
+        />
+        <Field
+          label={labels.targetProgram}
+          value={profile.targetProgram ?? ""}
+          onChange={(v) => setProfile({ ...profile, targetProgram: v || null })}
+          options={Object.keys(programOptions)}
+          optionLabels={programOptions}
         />
         <Field
           label={labels.firstLanguageClb}
           type="number"
-          value={profile.firstLanguageClb ?? 7}
-          onChange={(v) => setProfile({ ...profile, firstLanguageClb: Number(v) })}
+          value={profile.firstLanguageClb ?? ""}
+          onChange={(v) =>
+            setProfile({ ...profile, firstLanguageClb: v ? Number(v) : null })
+          }
         />
         <Field
           label={labels.secondLanguageClb}
@@ -108,7 +147,7 @@ export function ProfileClient({ title, labels }: ProfileClientProps) {
       </div>
       <button
         onClick={save}
-        className="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
+        className="rounded-full bg-gradient-to-r from-sky-500 to-blue-600 px-6 py-2.5 text-white font-semibold hover:opacity-90"
       >
         {saved ? labels.saved : labels.save}
       </button>
@@ -122,12 +161,14 @@ function Field({
   onChange,
   type = "text",
   options,
+  optionLabels,
 }: {
   label: string;
   value: string | number;
   onChange: (v: string) => void;
   type?: string;
   options?: string[];
+  optionLabels?: Record<string, string>;
 }) {
   return (
     <div>
@@ -136,11 +177,12 @@ function Field({
         <select
           value={String(value)}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white"
         >
+          <option value="">—</option>
           {options.map((o) => (
             <option key={o} value={o}>
-              {o}
+              {optionLabels?.[o] ?? o}
             </option>
           ))}
         </select>
@@ -149,7 +191,7 @@ function Field({
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white"
         />
       )}
     </div>

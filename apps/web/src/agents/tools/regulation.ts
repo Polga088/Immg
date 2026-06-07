@@ -1,1 +1,6 @@
-export { searchRegulations, getRecentChanges, ingestRegulationSources } from "@/lib/rag/search";
+export {
+  searchRegulations,
+  getRecentChanges,
+  ingestIrccCorpus,
+  ingestIrccCorpus as ingestRegulationSources,
+} from "@/lib/rag/search";

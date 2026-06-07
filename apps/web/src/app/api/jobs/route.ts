@@ -1,28 +1,36 @@
 import { prisma } from "@immg/db";
 import { generateWithProvider } from "@/lib/ai/provider";
 import { loadPrompt } from "@/agents/prompts/loader";
-import { DEMO_USER_ID } from "@/lib/utils";
-import { ensureDemoUser } from "@/lib/profile/service";
+import {
+  AuthError,
+  requireSessionUserId,
+  unauthorizedResponse,
+} from "@/lib/auth/session";
 
 export async function GET() {
-  await ensureDemoUser();
-  const applications = await prisma.application.findMany({
-    where: { userId: DEMO_USER_ID },
-    orderBy: { updatedAt: "desc" },
-  });
-  return Response.json({ applications });
+  try {
+    const userId = await requireSessionUserId();
+    const applications = await prisma.application.findMany({
+      where: { userId },
+      orderBy: { updatedAt: "desc" },
+    });
+    return Response.json({ applications });
+  } catch (error) {
+    if (error instanceof AuthError) return unauthorizedResponse();
+    return Response.json({ error: "Failed to load applications" }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {
   try {
-    await ensureDemoUser();
+    const userId = await requireSessionUserId();
     const body = await req.json();
     const { action } = body;
 
     if (action === "create") {
       const app = await prisma.application.create({
         data: {
-          userId: DEMO_USER_ID,
+          userId,
           company: body.company,
           title: body.title,
           jobUrl: body.jobUrl,
@@ -33,6 +41,12 @@ export async function POST(req: Request) {
     }
 
     if (action === "updateStatus") {
+      const existing = await prisma.application.findFirst({
+        where: { id: body.id, userId },
+      });
+      if (!existing) {
+        return Response.json({ error: "Not found" }, { status: 404 });
+      }
       const app = await prisma.application.update({
         where: { id: body.id },
         data: { status: body.status },
@@ -53,10 +67,15 @@ Write a professional draft to be reviewed before sending.`,
       });
 
       if (body.id) {
-        await prisma.application.update({
-          where: { id: body.id },
-          data: { coverLetter: text, status: "ready" },
+        const existing = await prisma.application.findFirst({
+          where: { id: body.id, userId },
         });
+        if (existing) {
+          await prisma.application.update({
+            where: { id: body.id },
+            data: { coverLetter: text, status: "ready" },
+          });
+        }
       }
 
       return Response.json({ coverLetter: text });
@@ -64,6 +83,7 @@ Write a professional draft to be reviewed before sending.`,
 
     return Response.json({ error: "Unknown action" }, { status: 400 });
   } catch (error) {
+    if (error instanceof AuthError) return unauthorizedResponse();
     console.error(error);
     return Response.json({ error: "Job action failed" }, { status: 500 });
   }

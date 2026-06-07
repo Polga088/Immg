@@ -1,10 +1,15 @@
 import { streamAgentChat, routeIntent } from "@/lib/chat/service";
 import { getOrCreateProfile, profileToCRSInput } from "@/lib/profile/service";
 import type { AgentId } from "@/lib/ai/config";
-import { DEMO_USER_ID } from "@/lib/utils";
+import {
+  AuthError,
+  requireSessionUserId,
+  unauthorizedResponse,
+} from "@/lib/auth/session";
 
 export async function POST(req: Request) {
   try {
+    const userId = await requireSessionUserId();
     const body = await req.json();
     const {
       messages,
@@ -26,7 +31,7 @@ export async function POST(req: Request) {
         ? agentId
         : routeIntent(lastUser?.content ?? "");
 
-    const profile = await getOrCreateProfile(DEMO_USER_ID);
+    const profile = await getOrCreateProfile(userId);
 
     const result = await streamAgentChat({
       agentId: resolvedAgent,
@@ -40,6 +45,7 @@ export async function POST(req: Request) {
 
     return result.toTextStreamResponse();
   } catch (error) {
+    if (error instanceof AuthError) return unauthorizedResponse();
     console.error("Chat error:", error);
     return Response.json(
       { error: "Chat failed. Ensure Ollama is running." },

@@ -54,14 +54,8 @@ export function AgentCard({
         )}
       />
       <div className="relative flex flex-col items-center text-center gap-4">
-        <div
-          className={cn(
-            "rounded-2xl p-3 ring-2 ring-offset-2",
-            meta.bg,
-            meta.ring,
-          )}
-        >
-          <AgentMascot agent={agent} size="lg" />
+        <div className="retro-card-frame rounded-none p-3 bg-zinc-900/5">
+          <AgentMascot agent={agent} size="lg" framed={false} />
         </div>
         <div>
           <p className={cn("text-xs font-semibold uppercase tracking-wider", meta.accent)}>
@@ -108,15 +102,8 @@ export function AgentHeader({ agent, title, locale, subtitle }: AgentHeaderProps
         )}
       />
       <div className="relative flex flex-col sm:flex-row items-center gap-6">
-        <div
-          className={cn(
-            "shrink-0 rounded-2xl p-4 ring-2 ring-offset-2 shadow-lg",
-            meta.bg,
-            meta.ring,
-            meta.glow,
-          )}
-        >
-          <AgentMascot agent={agent} size="xl" />
+        <div className="retro-card-frame shrink-0 p-4 bg-zinc-900/5">
+          <AgentMascot agent={agent} size="xl" framed={false} />
         </div>
         <div className="text-center sm:text-left">
           <p className={cn("text-sm font-bold uppercase tracking-widest", meta.accent)}>
