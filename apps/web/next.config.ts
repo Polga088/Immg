@@ -6,7 +6,7 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   output: "standalone",
   transpilePackages: ["@immg/db"],
-  serverExternalPackages: ["@mastra/core"],
+  serverExternalPackages: ["@mastra/core", "pdf-parse"],
   turbopack: {
     root: "../..",
   },

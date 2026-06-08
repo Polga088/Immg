@@ -1,5 +1,4 @@
 import { setRequestLocale } from "next-intl/server";
-import { getTranslations } from "next-intl/server";
 import { requireAuthWithProfile } from "@/lib/auth/guards";
 import { CvClient } from "./cv-client";
 
@@ -11,22 +10,6 @@ export default async function CvPage({
   const { locale } = await params;
   setRequestLocale(locale);
   await requireAuthWithProfile();
-  const t = await getTranslations("cv");
-  const chat = await getTranslations("chat");
 
-  return (
-    <CvClient
-      locale={locale}
-      title={t("title")}
-      uploadLabel={t("upload")}
-      jobDescriptionLabel={t("jobDescription")}
-      scoreLabel={t("score")}
-      suggestionsLabel={t("suggestions")}
-      analyzeLabel={t("analyze")}
-      chatPlaceholder={chat("placeholder")}
-      chatSend={chat("send")}
-      chatThinking={chat("thinking")}
-      chatError={chat("error")}
-    />
-  );
+  return <CvClient locale={locale} />;
 }

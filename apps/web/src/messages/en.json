@@ -117,11 +117,25 @@
   },
   "cv": {
     "title": "CV / ATS Agent",
-    "upload": "Upload resume (PDF/DOCX/TXT)",
+    "upload": "Upload resume",
+    "uploadHint": "PDF, DOCX or TXT — max 5 MB",
+    "pasteLabel": "Or paste resume text",
+    "pastePlaceholder": "Paste your resume content here…",
+    "selectedFile": "Selected file",
+    "removeFile": "Remove",
     "jobDescription": "Job description (optional)",
     "score": "ATS score",
     "suggestions": "Suggestions",
-    "analyze": "Analyze"
+    "analyze": "Analyze",
+    "extractedChars": "{count} characters extracted",
+    "errors": {
+      "no_content": "No resume provided — upload a file or paste text.",
+      "unsupported_type": "Unsupported format. Use PDF, DOCX or TXT.",
+      "too_large": "File too large (max 5 MB).",
+      "empty": "Could not extract text from this file.",
+      "parse_failed": "Failed to parse the resume.",
+      "analysis_failed": "An error occurred during analysis."
+    }
   },
   "regulation": {
     "title": "Regulations Agent",

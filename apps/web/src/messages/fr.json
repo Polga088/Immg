@@ -117,11 +117,25 @@
   },
   "cv": {
     "title": "Agent CV / ATS",
-    "upload": "Téléverser CV (PDF/DOCX/TXT)",
+    "upload": "Téléverser un CV",
+    "uploadHint": "PDF, DOCX ou TXT — max. 5 Mo",
+    "pasteLabel": "Ou coller le texte du CV",
+    "pastePlaceholder": "Collez le contenu de votre CV ici…",
+    "selectedFile": "Fichier sélectionné",
+    "removeFile": "Retirer",
     "jobDescription": "Description du poste (optionnel)",
     "score": "Score ATS",
     "suggestions": "Suggestions",
-    "analyze": "Analyser"
+    "analyze": "Analyser",
+    "extractedChars": "{count} caractères extraits",
+    "errors": {
+      "no_content": "Aucun CV fourni — téléversez un fichier ou collez du texte.",
+      "unsupported_type": "Format non supporté. Utilisez PDF, DOCX ou TXT.",
+      "too_large": "Fichier trop volumineux (max. 5 Mo).",
+      "empty": "Impossible d'extraire le texte de ce fichier.",
+      "parse_failed": "Échec de l'analyse du CV.",
+      "analysis_failed": "Une erreur est survenue lors de l'analyse."
+    }
   },
   "regulation": {
     "title": "Agent Réglementation",

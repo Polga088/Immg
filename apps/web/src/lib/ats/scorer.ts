@@ -92,13 +92,6 @@ export function scoreATS(
     keywordMatches,
     keywordMisses,
     issues,
-    suggestions,
+    suggestions: suggestions.slice(0, 5),
   };
-}
-
-export function parseResumeText(content: string, filename: string): string {
-  const ext = filename.split(".").pop()?.toLowerCase();
-  if (ext === "txt" || ext === "md") return content;
-  // MVP: treat PDF/DOCX as plain text extraction (user may paste or upload text)
-  return content.replace(/\0/g, " ").trim();
 }
