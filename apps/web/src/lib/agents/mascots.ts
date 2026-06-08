@@ -42,7 +42,7 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     id: "job",
     name: { fr: "Jade", en: "Jade" },
     tagline: {
-      fr: "Conseillère emploi — candidatures & lettres",
+      fr: "Conseiller emploi — candidatures & lettres",
       en: "Career advisor — jobs & cover letters",
     },
     gradient: "from-amber-500 to-orange-600",
@@ -55,8 +55,8 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     id: "procedure",
     name: { fr: "Atlas", en: "Atlas" },
     tagline: {
-      fr: "Professeur guide — parcours & score CRS",
-      en: "Professor guide — pathway & CRS score",
+      fr: "Guide immigration — parcours & score CRS",
+      en: "Immigration guide — pathway & CRS score",
     },
     gradient: "from-sky-500 to-blue-600",
     glow: "shadow-sky-500/25",

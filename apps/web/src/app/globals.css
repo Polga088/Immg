@@ -15,16 +15,16 @@ body {
 
 @keyframes mascot-bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  50% { transform: translateY(-3px); }
 }
 
 .animate-mascot-bob {
-  animation: mascot-bob 1s steps(2, end) infinite;
+  animation: mascot-bob 2.5s ease-in-out infinite;
 }
 
 /* Legacy alias */
 .animate-mascot-float {
-  animation: mascot-bob 1s steps(2, end) infinite;
+  animation: mascot-bob 2.5s ease-in-out infinite;
 }
 
 .pixel-art {

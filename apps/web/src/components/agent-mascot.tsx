@@ -1,6 +1,6 @@
+import Image from "next/image";
 import type { AgentId } from "@/lib/agents/mascots";
-import { PIXEL_BG, PIXEL_SPRITES } from "@/lib/agents/pixel-sprites";
-import { PixelSprite } from "@/components/pixel-sprite";
+import { MASCOT_BG, MASCOT_IMAGES } from "@/lib/agents/mascot-assets";
 import { cn } from "@/lib/utils";
 
 interface MascotProps {
@@ -19,10 +19,17 @@ const sizes = {
 };
 
 const padSizes = {
-  sm: "p-1",
-  md: "p-1.5",
-  lg: "p-2",
-  xl: "p-2.5",
+  sm: "p-0.5",
+  md: "p-1",
+  lg: "p-1.5",
+  xl: "p-2",
+};
+
+const imageSizes = {
+  sm: 48,
+  md: 80,
+  lg: 112,
+  xl: 144,
 };
 
 export function AgentMascot({
@@ -32,21 +39,27 @@ export function AgentMascot({
   animated = true,
   framed = true,
 }: MascotProps) {
-  const sprite = PIXEL_SPRITES[agent];
-
   return (
     <div
       className={cn(
+        "relative overflow-hidden",
         sizes[size],
         animated && "animate-mascot-bob",
-        framed && "retro-mascot-frame",
+        framed && "retro-mascot-frame rounded-sm",
         framed && padSizes[size],
         className,
       )}
-      style={framed ? { backgroundColor: PIXEL_BG[agent] } : undefined}
+      style={framed ? { backgroundColor: MASCOT_BG[agent] } : undefined}
       aria-hidden
     >
-      <PixelSprite pixels={sprite} />
+      <Image
+        src={MASCOT_IMAGES[agent]}
+        alt=""
+        fill
+        sizes={`${imageSizes[size]}px`}
+        className="object-contain pixel-art"
+        priority={size === "xl" || size === "lg"}
+      />
     </div>
   );
 }

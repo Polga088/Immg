@@ -8,7 +8,7 @@ import {
   localeName,
   localeTagline,
 } from "@/lib/agents/mascots";
-import { PIXEL_ROLES } from "@/lib/agents/pixel-sprites";
+import { MASCOT_ROLES } from "@/lib/agents/mascot-assets";
 import { cn } from "@/lib/utils";
 
 interface AgentCardProps {
@@ -27,7 +27,7 @@ export function AgentCard({
   locale,
 }: AgentCardProps) {
   const meta = getAgent(agent);
-  const role = PIXEL_ROLES[agent];
+  const role = MASCOT_ROLES[agent];
   const roleLabel = locale === "en" ? role.en : role.fr;
 
   return (
@@ -93,7 +93,7 @@ interface AgentHeaderProps {
 
 export function AgentHeader({ agent, title, locale, subtitle }: AgentHeaderProps) {
   const meta = getAgent(agent);
-  const role = PIXEL_ROLES[agent];
+  const role = MASCOT_ROLES[agent];
   const roleLabel = locale === "en" ? role.en : role.fr;
 
   return (
