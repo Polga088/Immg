@@ -16,8 +16,8 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     id: "regulation",
     name: { fr: "Mira", en: "Mira" },
     tagline: {
-      fr: "Hibou veilleuse — experte IRCC & réglementation",
-      en: "Watchful owl — IRCC & regulations expert",
+      fr: "Avocate — experte IRCC & réglementation",
+      en: "Lawyer — IRCC & regulations expert",
     },
     gradient: "from-violet-500 to-indigo-600",
     glow: "shadow-violet-500/25",
@@ -29,8 +29,8 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     id: "cv",
     name: { fr: "Rio", en: "Rio" },
     tagline: {
-      fr: "Renard pro — maître CV & score ATS",
-      en: "Pro fox — CV & ATS scoring master",
+      fr: "Coach CV — maître du score ATS",
+      en: "CV coach — ATS scoring expert",
     },
     gradient: "from-emerald-500 to-teal-600",
     glow: "shadow-emerald-500/25",
@@ -42,8 +42,8 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     id: "job",
     name: { fr: "Jade", en: "Jade" },
     tagline: {
-      fr: "Oiseau messager — emploi & candidatures",
-      en: "Messenger bird — jobs & applications",
+      fr: "Conseillère emploi — candidatures & lettres",
+      en: "Career advisor — jobs & cover letters",
     },
     gradient: "from-amber-500 to-orange-600",
     glow: "shadow-amber-500/25",
@@ -55,8 +55,8 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     id: "procedure",
     name: { fr: "Atlas", en: "Atlas" },
     tagline: {
-      fr: "Boussole maple — parcours & score CRS",
-      en: "Maple compass — pathway & CRS score",
+      fr: "Professeur guide — parcours & score CRS",
+      en: "Professor guide — pathway & CRS score",
     },
     gradient: "from-sky-500 to-blue-600",
     glow: "shadow-sky-500/25",

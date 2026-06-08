@@ -8,6 +8,7 @@ import {
   localeName,
   localeTagline,
 } from "@/lib/agents/mascots";
+import { PIXEL_ROLES } from "@/lib/agents/pixel-sprites";
 import { cn } from "@/lib/utils";
 
 interface AgentCardProps {
@@ -26,6 +27,8 @@ export function AgentCard({
   locale,
 }: AgentCardProps) {
   const meta = getAgent(agent);
+  const role = PIXEL_ROLES[agent];
+  const roleLabel = locale === "en" ? role.en : role.fr;
 
   return (
     <Link
@@ -61,6 +64,9 @@ export function AgentCard({
           <p className={cn("text-xs font-semibold uppercase tracking-wider", meta.accent)}>
             {localeName(meta, locale)}
           </p>
+          <p className="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
+            {roleLabel}
+          </p>
           <h2 className="mt-1 text-lg font-bold text-zinc-900">{title}</h2>
           <p className="mt-2 text-sm text-zinc-600 leading-relaxed">{description}</p>
         </div>
@@ -87,6 +93,8 @@ interface AgentHeaderProps {
 
 export function AgentHeader({ agent, title, locale, subtitle }: AgentHeaderProps) {
   const meta = getAgent(agent);
+  const role = PIXEL_ROLES[agent];
+  const roleLabel = locale === "en" ? role.en : role.fr;
 
   return (
     <div
@@ -107,7 +115,7 @@ export function AgentHeader({ agent, title, locale, subtitle }: AgentHeaderProps
         </div>
         <div className="text-center sm:text-left">
           <p className={cn("text-sm font-bold uppercase tracking-widest", meta.accent)}>
-            {localeName(meta, locale)}
+            {localeName(meta, locale)} · {roleLabel}
           </p>
           <h1 className="mt-1 text-2xl md:text-3xl font-bold text-zinc-900">{title}</h1>
           <p className="mt-2 text-zinc-600 max-w-lg">
