@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ExternalLink, FileText, GripVertical } from "lucide-react";
-import { KANBAN_COLUMNS, type ApplicationStatus } from "@/lib/jobs/constants";
+import { KANBAN_COLUMNS, type ApplicationStatus, type KanbanColumn } from "@/lib/jobs/constants";
 
 export interface JobApplication {
   id: string;
@@ -16,7 +16,7 @@ export interface JobApplication {
 interface JobsKanbanProps {
   applications: JobApplication[];
   statusLabels: Record<ApplicationStatus, string>;
-  columnLabels: Record<(typeof KANBAN_COLUMNS)[number], string>;
+  columnLabels: Record<KanbanColumn, string>;
   generateLabel: string;
   viewLetterLabel: string;
   jobDescriptionLabel: string;

@@ -9,13 +9,13 @@ export const APPLICATION_STATUSES = [
 
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 
-export const KANBAN_COLUMNS: ApplicationStatus[] = [
-  "draft",
-  "ready",
-  "sent",
-  "interview",
-];
+export const KANBAN_COLUMNS = ["draft", "ready", "sent", "interview"] as const;
+export type KanbanColumn = (typeof KANBAN_COLUMNS)[number];
 
 export function isValidApplicationStatus(status: string): status is ApplicationStatus {
   return (APPLICATION_STATUSES as readonly string[]).includes(status);
+}
+
+export function isKanbanColumn(status: string): status is KanbanColumn {
+  return (KANBAN_COLUMNS as readonly string[]).includes(status);
 }

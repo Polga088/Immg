@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ChatPanel } from "@/components/chat-panel";
 import { AgentHeader } from "@/components/agent-card";
 import { JobsKanban, type JobApplication } from "@/components/jobs-kanban";
-import type { ApplicationStatus } from "@/lib/jobs/constants";
+import { KANBAN_COLUMNS, type ApplicationStatus, type KanbanColumn } from "@/lib/jobs/constants";
 
 interface JobsClientProps {
   locale: string;
@@ -20,7 +20,7 @@ interface JobsClientProps {
   emptyColumnLabel: string;
   kanbanTitle: string;
   statusLabels: Record<ApplicationStatus, string>;
-  columnLabels: Record<"draft" | "ready" | "sent" | "interview", string>;
+  columnLabels: Record<KanbanColumn, string>;
   chatPlaceholder: string;
   chatSend: string;
   chatThinking: string;

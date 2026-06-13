@@ -48,9 +48,9 @@ export const IRCC_SOURCES: IrccSource[] = [
     fallbackTitle: "Tests de langue — Entrée express",
   },
   {
-    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/entree-express/documents/fonds-subsistance.html",
+    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/entree-express/documents/preuve-fonds-suffisants.html",
     lang: "fr",
-    fallbackTitle: "Entrée express — Preuve de fonds de subsistance",
+    fallbackTitle: "Entrée express — Preuve de fonds suffisants",
   },
   {
     url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score.html",

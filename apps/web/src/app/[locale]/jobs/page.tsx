@@ -1,7 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { requireAuthWithProfile } from "@/lib/auth/guards";
-import { KANBAN_COLUMNS, type ApplicationStatus } from "@/lib/jobs/constants";
+import { KANBAN_COLUMNS, type ApplicationStatus, type KanbanColumn } from "@/lib/jobs/constants";
 import { JobsClient } from "./jobs-client";
 
 export default async function JobsPage({
@@ -23,7 +23,7 @@ export default async function JobsPage({
 
   const columnLabels = Object.fromEntries(
     KANBAN_COLUMNS.map((key) => [key, t(`columns.${key}`)]),
-  ) as Record<(typeof KANBAN_COLUMNS)[number], string>;
+  ) as Record<KanbanColumn, string>;
 
   return (
     <JobsClient
