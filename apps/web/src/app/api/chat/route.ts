@@ -1,4 +1,4 @@
-import { streamAgentChat, routeIntent } from "@/lib/chat/service";
+import { streamAgentChat } from "@/lib/chat/service";
 import { getOrCreateProfile, profileToCRSInput } from "@/lib/profile/service";
 import type { AgentId } from "@/lib/ai/config";
 import {
@@ -27,14 +27,13 @@ export async function POST(req: Request) {
 
     const lastUser = [...messages].reverse().find((m) => m.role === "user");
     const resolvedAgent =
-      agentId && agentId !== "supervisor"
-        ? agentId
-        : routeIntent(lastUser?.content ?? "");
+      agentId && agentId !== "supervisor" ? agentId : undefined;
 
     const profile = await getOrCreateProfile(userId);
 
     const result = await streamAgentChat({
       agentId: resolvedAgent,
+      userId,
       messages,
       locale,
       profileData: profileToCRSInput(profile),

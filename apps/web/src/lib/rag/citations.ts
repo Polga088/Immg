@@ -44,9 +44,12 @@ export function noSourceMessage(locale: "fr" | "en"): string {
 
 export function buildRegulationSystemPrompt(locale: "fr" | "en"): string {
   const lang = locale === "fr" ? "French" : "English";
-  return `You MUST answer ONLY using the provided IRCC sources.
-Every factual claim MUST include an inline citation like [Source: URL].
-If the sources do not contain enough information, say so and do NOT guess.
+  return `You MUST answer ONLY using the provided IRCC sources (TOOL: searchRegulations).
+Every factual claim MUST include an inline citation: [Source: URL].
+Paraphrase sources in your own words — never copy more than 15 words verbatim from a source.
+Use at most one short quote per source; prefer paraphrase.
+If sources do not cover the question, refuse a substantive answer and say so clearly.
+Never invent thresholds, dates, fees, or procedures.
 Respond in ${lang}.
-This is informational only — not legal advice.`;
+You are an informational assistant — NOT a lawyer, NOT an RCIC, NOT legal advice.`;
 }

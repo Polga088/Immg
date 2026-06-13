@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 
-export function loadPrompt(agent: string, version = "v1"): string {
+export function loadPrompt(agent: string, version = "v2"): string {
   try {
     const promptPath = join(
       process.cwd(),
