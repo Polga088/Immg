@@ -23,7 +23,7 @@ export const IRCC_SOURCES: IrccSource[] = [
     fallbackTitle: "Entrée express — Vue d'ensemble",
   },
   {
-    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/programmes-nomination-provinciale.html",
+    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/candidats-provinces.html",
     lang: "fr",
     fallbackTitle: "Programmes des candidats des provinces (PNP)",
   },
@@ -38,12 +38,12 @@ export const IRCC_SOURCES: IrccSource[] = [
     fallbackTitle: "Permis d'études",
   },
   {
-    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/entree-express/documents/diplomes.html",
+    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/entree-express/documents/evaluer-diplomes-etudes.html",
     lang: "fr",
     fallbackTitle: "Évaluation des diplômes (ECA)",
   },
   {
-    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/entree-express/documents/langue.html",
+    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/entree-express/documents/examen-linguistique.html",
     lang: "fr",
     fallbackTitle: "Tests de langue — Entrée express",
   },
@@ -164,7 +164,7 @@ export const IRCC_SEED_FALLBACK: Array<{ url: string; title: string; content: st
       "Le système de classement global (CRS) évalue les candidats selon l'âge, l'éducation, l'expérience de travail, les compétences linguistiques et d'autres facteurs. Les candidats avec les scores les plus élevés reçoivent une invitation à présenter une demande.",
   },
   {
-    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/programmes-nomination-provinciale.html",
+    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/candidats-provinces.html",
     title: "Programmes des candidats des provinces",
     content:
       "Les PNP permettent aux provinces et territoires de nominer des personnes qui souhaitent immigrer au Canada et s'établir dans une province particulière.",
