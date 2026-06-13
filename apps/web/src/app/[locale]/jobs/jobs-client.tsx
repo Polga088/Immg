@@ -1,17 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ChatPanel } from "@/components/chat-panel";
 import { AgentHeader } from "@/components/agent-card";
-
-interface Application {
-  id: string;
-  company: string;
-  title: string;
-  jobUrl: string | null;
-  status: string;
-  coverLetter: string | null;
-}
+import { JobsKanban, type JobApplication } from "@/components/jobs-kanban";
+import type { ApplicationStatus } from "@/lib/jobs/constants";
 
 interface JobsClientProps {
   locale: string;
@@ -20,8 +13,14 @@ interface JobsClientProps {
   companyLabel: string;
   jobTitleLabel: string;
   jobUrlLabel: string;
-  statusLabel: string;
+  jobDescriptionLabel: string;
   generateLabel: string;
+  viewLetterLabel: string;
+  generatingLabel: string;
+  emptyColumnLabel: string;
+  kanbanTitle: string;
+  statusLabels: Record<ApplicationStatus, string>;
+  columnLabels: Record<"draft" | "ready" | "sent" | "interview", string>;
   chatPlaceholder: string;
   chatSend: string;
   chatThinking: string;
@@ -29,20 +28,20 @@ interface JobsClientProps {
 }
 
 export function JobsClient(props: JobsClientProps) {
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [applications, setApplications] = useState<JobApplication[]>([]);
   const [company, setCompany] = useState("");
   const [title, setTitle] = useState("");
   const [jobUrl, setJobUrl] = useState("");
 
-  function loadApps() {
+  const loadApps = useCallback(() => {
     fetch("/api/jobs")
       .then((r) => r.json())
       .then((d) => setApplications(d.applications ?? []));
-  }
+  }, []);
 
   useEffect(() => {
     loadApps();
-  }, []);
+  }, [loadApps]);
 
   async function addApplication() {
     await fetch("/api/jobs", {
@@ -56,7 +55,21 @@ export function JobsClient(props: JobsClientProps) {
     loadApps();
   }
 
-  async function generateLetter(app: Application) {
+  async function updateStatus(id: string, status: ApplicationStatus) {
+    const res = await fetch("/api/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "updateStatus", id, status }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setApplications((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, ...data.application } : a)),
+      );
+    }
+  }
+
+  async function generateLetter(app: JobApplication, jobDescription: string) {
     const res = await fetch("/api/jobs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -65,11 +78,22 @@ export function JobsClient(props: JobsClientProps) {
         id: app.id,
         company: app.company,
         title: app.title,
+        jobUrl: app.jobUrl,
+        jobDescription,
+        locale: props.locale,
       }),
     });
     const data = await res.json();
-    alert(data.coverLetter?.slice(0, 500) + "…");
-    loadApps();
+    if (data.coverLetter) {
+      setApplications((prev) =>
+        prev.map((a) =>
+          a.id === app.id
+            ? { ...a, coverLetter: data.coverLetter, status: "ready" }
+            : a,
+        ),
+      );
+    }
+    return data.coverLetter ?? null;
   }
 
   return (
@@ -99,35 +123,29 @@ export function JobsClient(props: JobsClientProps) {
           />
         </div>
         <button
-          onClick={addApplication}
+          type="button"
+          onClick={() => void addApplication()}
           disabled={!company || !title}
           className="rounded-full bg-gradient-to-r from-amber-500 to-orange-600 px-5 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
           {props.addLabel}
         </button>
+      </div>
 
-        <div className="space-y-2 pt-4 border-t">
-          {applications.map((app) => (
-            <div
-              key={app.id}
-              className="flex items-center justify-between rounded-lg border border-zinc-100 p-3"
-            >
-              <div>
-                <p className="font-medium">{app.title}</p>
-                <p className="text-sm text-zinc-500">{app.company}</p>
-                <span className="text-xs bg-zinc-100 px-2 py-0.5 rounded">
-                  {props.statusLabel}: {app.status}
-                </span>
-              </div>
-              <button
-                onClick={() => generateLetter(app)}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                {props.generateLabel}
-              </button>
-            </div>
-          ))}
-        </div>
+      <div className="rounded-2xl glass border border-white/60 p-6 shadow-sm space-y-4">
+        <h2 className="font-semibold">{props.kanbanTitle}</h2>
+        <JobsKanban
+          applications={applications}
+          statusLabels={props.statusLabels}
+          columnLabels={props.columnLabels}
+          generateLabel={props.generateLabel}
+          viewLetterLabel={props.viewLetterLabel}
+          jobDescriptionLabel={props.jobDescriptionLabel}
+          generatingLabel={props.generatingLabel}
+          emptyColumnLabel={props.emptyColumnLabel}
+          onStatusChange={updateStatus}
+          onGenerateLetter={generateLetter}
+        />
       </div>
 
       <ChatPanel

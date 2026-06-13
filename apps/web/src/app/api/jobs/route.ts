@@ -1,19 +1,20 @@
 import { prisma } from "@immg/db";
-import { generateWithProvider } from "@/lib/ai/provider";
-import { loadPrompt } from "@/agents/prompts/loader";
 import {
   AuthError,
   requireSessionUserId,
   unauthorizedResponse,
 } from "@/lib/auth/session";
+import {
+  createApplication,
+  generateApplicationCoverLetter,
+  listApplications,
+  updateApplicationStatus,
+} from "@/lib/jobs/service";
 
 export async function GET() {
   try {
     const userId = await requireSessionUserId();
-    const applications = await prisma.application.findMany({
-      where: { userId },
-      orderBy: { updatedAt: "desc" },
-    });
+    const applications = await listApplications(userId);
     return Response.json({ applications });
   } catch (error) {
     if (error instanceof AuthError) return unauthorizedResponse();
@@ -28,62 +29,40 @@ export async function POST(req: Request) {
     const { action } = body;
 
     if (action === "create") {
-      const app = await prisma.application.create({
-        data: {
-          userId,
-          company: body.company,
-          title: body.title,
-          jobUrl: body.jobUrl,
-          status: "draft",
-        },
+      const app = await createApplication(userId, {
+        company: body.company,
+        title: body.title,
+        jobUrl: body.jobUrl,
       });
       return Response.json({ application: app });
     }
 
     if (action === "updateStatus") {
-      const existing = await prisma.application.findFirst({
-        where: { id: body.id, userId },
-      });
-      if (!existing) {
+      const app = await updateApplicationStatus(userId, body.id, body.status);
+      if (!app) {
         return Response.json({ error: "Not found" }, { status: 404 });
       }
-      const app = await prisma.application.update({
-        where: { id: body.id },
-        data: { status: body.status },
-      });
       return Response.json({ application: app });
     }
 
     if (action === "coverLetter") {
-      const { text } = await generateWithProvider({
-        system: loadPrompt("job"),
-        prompt: `Generate a cover letter draft for:
-Company: ${body.company}
-Job title: ${body.title}
-Job description: ${body.jobDescription ?? "N/A"}
-Candidate background: ${body.profileSummary ?? "Skilled professional seeking immigration to Canada"}
-
-Write a professional draft to be reviewed before sending.`,
+      const coverLetter = await generateApplicationCoverLetter(userId, {
+        id: body.id,
+        company: body.company,
+        title: body.title,
+        jobUrl: body.jobUrl,
+        jobDescription: body.jobDescription,
+        locale: body.locale === "en" ? "en" : "fr",
       });
-
-      if (body.id) {
-        const existing = await prisma.application.findFirst({
-          where: { id: body.id, userId },
-        });
-        if (existing) {
-          await prisma.application.update({
-            where: { id: body.id },
-            data: { coverLetter: text, status: "ready" },
-          });
-        }
-      }
-
-      return Response.json({ coverLetter: text });
+      return Response.json({ coverLetter });
     }
 
     return Response.json({ error: "Unknown action" }, { status: 400 });
   } catch (error) {
     if (error instanceof AuthError) return unauthorizedResponse();
+    if (error instanceof Error && error.message === "Invalid status") {
+      return Response.json({ error: "Invalid status" }, { status: 400 });
+    }
     console.error(error);
     return Response.json({ error: "Job action failed" }, { status: 500 });
   }

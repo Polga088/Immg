@@ -151,11 +151,22 @@
   "jobs": {
     "title": "Agent Emploi",
     "addApplication": "Nouvelle candidature",
+    "kanbanTitle": "Suivi des candidatures",
     "company": "Entreprise",
     "jobTitle": "Poste",
     "jobUrl": "URL offre",
+    "jobDescription": "Description du poste (optionnel)",
     "status": "Statut",
     "generateLetter": "Générer lettre",
+    "viewLetter": "Voir la lettre",
+    "generating": "Génération…",
+    "emptyColumn": "Glissez une candidature ici",
+    "columns": {
+      "draft": "Brouillon",
+      "ready": "Prêt à envoyer",
+      "sent": "Envoyé",
+      "interview": "Entretien"
+    },
     "statuses": {
       "draft": "Brouillon",
       "ready": "Prêt",

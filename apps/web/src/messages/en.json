@@ -151,11 +151,22 @@
   "jobs": {
     "title": "Jobs Agent",
     "addApplication": "New application",
+    "kanbanTitle": "Application tracker",
     "company": "Company",
     "jobTitle": "Job title",
     "jobUrl": "Job URL",
+    "jobDescription": "Job description (optional)",
     "status": "Status",
     "generateLetter": "Generate cover letter",
+    "viewLetter": "View letter",
+    "generating": "Generating…",
+    "emptyColumn": "Drop an application here",
+    "columns": {
+      "draft": "Draft",
+      "ready": "Ready to send",
+      "sent": "Sent",
+      "interview": "Interview"
+    },
     "statuses": {
       "draft": "Draft",
       "ready": "Ready",

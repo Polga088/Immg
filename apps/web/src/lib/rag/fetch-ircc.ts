@@ -48,6 +48,11 @@ export const IRCC_SOURCES: IrccSource[] = [
     fallbackTitle: "Tests de langue — Entrée express",
   },
   {
+    url: "https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/entree-express/documents/fonds-subsistance.html",
+    lang: "fr",
+    fallbackTitle: "Entrée express — Preuve de fonds de subsistance",
+  },
+  {
     url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score.html",
     lang: "en",
     fallbackTitle: "Express Entry — Comprehensive Ranking System",
@@ -66,6 +71,11 @@ export const IRCC_SOURCES: IrccSource[] = [
     url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/work-canada/work-permit.html",
     lang: "en",
     fallbackTitle: "Work permit",
+  },
+  {
+    url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/proof-funds.html",
+    lang: "en",
+    fallbackTitle: "Express Entry — Proof of funds",
   },
 ];
 

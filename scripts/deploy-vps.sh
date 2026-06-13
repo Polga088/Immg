@@ -27,6 +27,11 @@ docker run --rm \
   --env-file .env \
   node:22-alpine sh -c "npm ci --omit=dev && cd packages/db && npx prisma generate && npx prisma db push --accept-data-loss"
 
+echo "Restoring pgvector embedding column (managed outside Prisma schema)..."
+docker compose -f docker-compose.prod.yml exec -T postgres \
+  psql -U immg -d immg -v ON_ERROR_STOP=1 \
+  < packages/db/prisma/sql/pgvector-setup.sql
+
 docker compose -f docker-compose.prod.yml up -d
 
 echo "Waiting for services..."
@@ -48,7 +53,7 @@ if [ -f .env ]; then
   source .env
   BASE="${NEXT_PUBLIC_APP_URL:-http://localhost:${NGINX_HTTP_PORT:-8080}}"
   echo "Check: curl ${BASE}/api/health"
-  echo "Ingest IRCC: ./scripts/ingest-ircc-vps.sh"
+  echo "Ingest IRCC: ./scripts/ingest-ircc-vps.sh (required after deploy to fill embeddings)"
 else
   echo "Check: curl http://localhost:${NGINX_HTTP_PORT:-8080}/api/health"
 fi
