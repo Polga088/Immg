@@ -17,11 +17,15 @@ function stripLocale(pathname: string): string {
 
 const publicPaths = new Set(["/", "/login", "/register"]);
 
-function isPublicApi(pathname: string): boolean {
-  return (
-    pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/health")
-  );
+function isPublicApi(pathname: string, method: string): boolean {
+  if (pathname.startsWith("/api/auth") || pathname.startsWith("/api/health")) {
+    return true;
+  }
+  // Read-only RAG search (no LLM) — useful for ops checks; POST stays authenticated
+  if (pathname === "/api/regulations/search" && method === "GET") {
+    return true;
+  }
+  return false;
 }
 
 export default auth((req) => {
@@ -29,7 +33,7 @@ export default auth((req) => {
 
   // API routes must never get a locale prefix (/fr/api/... breaks register & health)
   if (pathname.startsWith("/api/")) {
-    if (!req.auth && !isPublicApi(pathname)) {
+    if (!req.auth && !isPublicApi(pathname, req.method)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     return NextResponse.next();
