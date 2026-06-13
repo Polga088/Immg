@@ -20,6 +20,6 @@ docker run --rm \
   --network "${NETWORK}" \
   -v "$(pwd):/app" -w /app \
   --env-file .env \
-  node:22-alpine sh -c "npm ci && npm run db:generate && npx tsx scripts/ingest-ircc.ts"
+  node:22-alpine sh -c "npm ci && npm run db:generate && cd apps/web && npx tsx scripts/ingest-ircc.ts"
 
 echo "Ingest complete."
