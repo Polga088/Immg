@@ -53,6 +53,36 @@ export async function generateWithProvider(options: {
   }
 }
 
+export async function generateChatWithProvider(options: {
+  system: string;
+  messages: Array<{ role: "user" | "assistant"; content: string }>;
+  model?: LanguageModel;
+}): Promise<string> {
+  const model = options.model ?? (await resolveChatModel());
+
+  try {
+    const { text } = await generateText({
+      model,
+      system: options.system,
+      messages: options.messages,
+      abortSignal: AbortSignal.timeout(aiConfig.timeoutMs),
+    });
+    return text;
+  } catch (error) {
+    if (aiConfig.provider !== "hybrid") throw error;
+
+    const fallback = await getOpenAIModel();
+    if (!fallback) throw error;
+
+    const { text } = await generateText({
+      model: fallback,
+      system: options.system,
+      messages: options.messages,
+    });
+    return text;
+  }
+}
+
 export async function streamWithProvider(options: {
   system: string;
   messages: Array<{ role: "user" | "assistant"; content: string }>;

@@ -71,7 +71,14 @@ export function ChatPanel({
         throw new Error("auth");
       }
       if (!res.ok) {
-        throw new Error("server");
+        let detail = "";
+        try {
+          const data = (await res.json()) as { detail?: string; error?: string };
+          detail = data.detail ?? data.error ?? "";
+        } catch {
+          // not JSON
+        }
+        throw new Error(detail || "server");
       }
 
       const reader = res.body?.getReader();
@@ -103,6 +110,10 @@ export function ChatPanel({
     } catch (err) {
       if (err instanceof Error && err.message === "auth") {
         setError(authErrorLabel ?? errorLabel);
+      } else if (err instanceof Error && err.message === "empty") {
+        setError(errorLabel);
+      } else if (err instanceof Error && err.message && err.message !== "server") {
+        setError(`${errorLabel} (${err.message})`);
       } else {
         setError(errorLabel);
       }

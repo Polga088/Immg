@@ -1,20 +1,20 @@
 import type { AgentId } from "@/lib/ai/config";
 import { loadPrompt } from "@/agents/prompts/loader";
-import { streamWithProvider } from "@/lib/ai/provider";
+import { generateChatWithProvider } from "@/lib/ai/provider";
 import { buildToolContext, resolvePromptAgent } from "@/lib/chat/agent-kernel";
 import { resolveAgents, describeAgentRoles, type RoutableAgent } from "@/lib/chat/routing";
 import { fetchUserMemory } from "@/lib/chat/user-memory";
 
 export { routeIntent, resolveAgents } from "@/lib/chat/routing";
 
-export async function streamAgentChat(options: {
+export async function generateAgentChat(options: {
   agentId?: AgentId;
   userId: string;
   messages: Array<{ role: "user" | "assistant"; content: string }>;
   locale: "fr" | "en";
   profileData?: Record<string, unknown>;
   resumeContext?: { text: string; jobDescription?: string };
-}) {
+}): Promise<string> {
   const { agentId, userId, messages, locale, profileData, resumeContext } = options;
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   const userMessage = lastUser?.content ?? "";
@@ -51,5 +51,5 @@ ${multiAgentNote}
 
 ${toolContext}`;
 
-  return streamWithProvider({ system, messages });
+  return generateChatWithProvider({ system, messages });
 }

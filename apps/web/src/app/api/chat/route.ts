@@ -1,4 +1,4 @@
-import { streamAgentChat } from "@/lib/chat/service";
+import { generateAgentChat } from "@/lib/chat/service";
 import { getOrCreateProfile, profileToCRSInput } from "@/lib/profile/service";
 import type { AgentId } from "@/lib/ai/config";
 import {
@@ -25,29 +25,35 @@ export async function POST(req: Request) {
       jobDescription?: string;
     };
 
-    const lastUser = [...messages].reverse().find((m) => m.role === "user");
     const resolvedAgent =
       agentId && agentId !== "supervisor" ? agentId : undefined;
 
     const profile = await getOrCreateProfile(userId);
 
-    const result = await streamAgentChat({
+    const text = await generateAgentChat({
       agentId: resolvedAgent,
       userId,
       messages,
       locale,
       profileData: profileToCRSInput(profile),
       resumeContext: resumeText
-        ? { text: resumeText, jobDescription }
+        ? { text: resumeText.slice(0, 8000), jobDescription }
         : undefined,
     });
 
-    return result.toTextStreamResponse();
+    if (!text.trim()) {
+      return Response.json({ error: "Empty LLM response" }, { status: 502 });
+    }
+
+    return new Response(text, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
   } catch (error) {
     if (error instanceof AuthError) return unauthorizedResponse();
-    console.error("Chat error:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Chat error:", message, error);
     return Response.json(
-      { error: "Chat failed. Ensure Ollama is running." },
+      { error: "Chat failed", detail: message },
       { status: 500 },
     );
   }
