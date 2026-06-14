@@ -2,7 +2,8 @@ import { createOllama } from "ai-sdk-ollama";
 import { aiConfig } from "./config";
 
 export const ollamaProvider = createOllama({
-  baseURL: `${aiConfig.ollamaBaseUrl.replace(/\/$/, "")}/api`,
+  // Host only — ai-sdk-ollama appends /api/generate itself (do not add /api)
+  baseURL: aiConfig.ollamaBaseUrl.replace(/\/$/, ""),
 });
 
 export function getChatModel(model = aiConfig.model) {
