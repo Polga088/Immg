@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, generateMessageId } from "@/lib/utils";
 
 interface Message {
   id: string;
@@ -16,6 +16,7 @@ interface ChatPanelProps {
   sendLabel: string;
   thinkingLabel: string;
   errorLabel: string;
+  authErrorLabel?: string;
   resumeText?: string;
   jobDescription?: string;
 }
@@ -27,6 +28,7 @@ export function ChatPanel({
   sendLabel,
   thinkingLabel,
   errorLabel,
+  authErrorLabel,
   resumeText,
   jobDescription,
 }: ChatPanelProps) {
@@ -40,7 +42,7 @@ export function ChatPanel({
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateMessageId(),
       role: "user",
       content: input.trim(),
     };
@@ -54,6 +56,7 @@ export function ChatPanel({
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: newMessages.map(({ role, content }) => ({ role, content })),
@@ -64,13 +67,18 @@ export function ChatPanel({
         }),
       });
 
-      if (!res.ok) throw new Error("Chat request failed");
+      if (res.status === 401) {
+        throw new Error("auth");
+      }
+      if (!res.ok) {
+        throw new Error("server");
+      }
 
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
       let assistantContent = "";
 
-      const assistantId = crypto.randomUUID();
+      const assistantId = generateMessageId();
       setMessages((prev) => [
         ...prev,
         { id: assistantId, role: "assistant", content: "" },
@@ -88,8 +96,16 @@ export function ChatPanel({
           );
         }
       }
-    } catch {
-      setError(errorLabel);
+
+      if (!assistantContent.trim()) {
+        throw new Error("empty");
+      }
+    } catch (err) {
+      if (err instanceof Error && err.message === "auth") {
+        setError(authErrorLabel ?? errorLabel);
+      } else {
+        setError(errorLabel);
+      }
     } finally {
       setIsLoading(false);
     }

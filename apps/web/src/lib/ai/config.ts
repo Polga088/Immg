@@ -9,7 +9,7 @@ export const aiConfig = {
   openaiBaseUrl: process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1",
   openaiApiKey: process.env.OPENAI_API_KEY ?? "",
   fallbackModel: process.env.FALLBACK_MODEL ?? "gpt-4o-mini",
-  timeoutMs: 60_000,
+  timeoutMs: Number(process.env.CHAT_TIMEOUT_MS ?? 180_000),
 };
 
 export type AgentId = "supervisor" | "regulation" | "cv" | "job" | "procedure";
