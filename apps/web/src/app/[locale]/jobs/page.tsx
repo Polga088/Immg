@@ -2,7 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { requireAuthWithProfile } from "@/lib/auth/guards";
 import { KANBAN_COLUMNS, type ApplicationStatus, type KanbanColumn } from "@/lib/jobs/constants";
-import { JobsClient } from "./jobs-client";
+import { JadeHub } from "@/components/jade/jade-hub";
 
 export default async function JobsPage({
   params,
@@ -26,21 +26,67 @@ export default async function JobsPage({
   ) as Record<KanbanColumn, string>;
 
   return (
-    <JobsClient
+    <JadeHub
       locale={locale}
       title={t("title")}
-      addLabel={t("addApplication")}
-      companyLabel={t("company")}
-      jobTitleLabel={t("jobTitle")}
-      jobUrlLabel={t("jobUrl")}
-      jobDescriptionLabel={t("jobDescription")}
-      generateLabel={t("generateLetter")}
-      viewLetterLabel={t("viewLetter")}
-      generatingLabel={t("generating")}
-      emptyColumnLabel={t("emptyColumn")}
-      kanbanTitle={t("kanbanTitle")}
+      tabs={{
+        connections: t("tabs.connections"),
+        opportunities: t("tabs.opportunities"),
+        contacts: t("tabs.contacts"),
+        workflow: t("tabs.workflow"),
+      }}
+      addApplication={t("addApplication")}
+      company={t("company")}
+      jobTitle={t("jobTitle")}
+      jobUrl={t("jobUrl")}
       statusLabels={statusLabels}
       columnLabels={columnLabels}
+      connectionsLabels={{
+        title: t("connections.title"),
+        gmail: t("connections.gmail"),
+        indeed: t("connections.indeed"),
+        jobBank: t("connections.jobBank"),
+        connect: t("connections.connect"),
+        connected: t("connections.connected"),
+        disconnect: t("connections.disconnect"),
+        notConfigured: t("connections.notConfigured"),
+        syncAlerts: t("connections.syncAlerts"),
+      }}
+      opportunitiesLabels={{
+        title: t("opportunities.title"),
+        keywords: t("opportunities.keywords"),
+        location: t("opportunities.location"),
+        search: t("opportunities.search"),
+        searching: t("opportunities.searching"),
+        import: t("opportunities.import"),
+        results: t("opportunities.results"),
+        noResults: t("opportunities.noResults"),
+      }}
+      contactsLabels={{
+        title: t("contacts.title"),
+        email: t("contacts.email"),
+        company: t("contacts.company"),
+        source: t("contacts.source"),
+        empty: t("contacts.empty"),
+      }}
+      workflowLabels={{
+        title: t("workflow.title"),
+        generateLetter: t("generateLetter"),
+        viewLetter: t("viewLetter"),
+        jobDescription: t("jobDescription"),
+        generating: t("generating"),
+        emptyColumn: t("emptyColumn"),
+        preparePackage: t("workflow.preparePackage"),
+        preparing: t("workflow.preparing"),
+        validateSend: t("workflow.validateSend"),
+        packageTitle: t("workflow.packageTitle"),
+        adaptedCv: t("workflow.adaptedCv"),
+        coverLetter: t("workflow.coverLetter"),
+        fitScore: t("workflow.fitScore"),
+        createDraft: t("workflow.createDraft"),
+        close: t("workflow.close"),
+        disclaimer: t("workflow.disclaimer"),
+      }}
       chatPlaceholder={chat("placeholder")}
       chatSend={chat("send")}
       chatThinking={chat("thinking")}

@@ -23,6 +23,8 @@ model User {
   applications  Application[]
   conversations Conversation[]
   procedureSteps ProcedureStep[]
+  jobIntegrations JobIntegration[]
+  recruiterContacts RecruiterContact[]
 }
 
 model ImmigrationProfile {
@@ -84,17 +86,66 @@ model RegulationChange {
 }
 
 model Application {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company         String
+  title           String
+  jobUrl          String?
+  source          String    @default("manual")
+  externalJobId   String?
+  location        String?
+  salary          String?
+  jobDescription  String?   @db.Text
+  status          String    @default("draft")
+  coverLetter     String?   @db.Text
+  adaptedCv       String?   @db.Text
+  recruiterEmail  String?
+  recruiterName   String?
+  fitScore        Int?
+  gmailDraftId    String?
+  packageReady    Boolean   @default(false)
+  scheduledAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId, source])
+  @@index([userId, status])
+}
+
+model JobIntegration {
   id           String    @id @default(cuid())
   userId       String
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company      String
-  title        String
-  jobUrl       String?
-  status       String    @default("draft")
-  coverLetter  String?   @db.Text
-  scheduledAt  DateTime?
+  provider     String
+  accountEmail String?
+  accessToken  String?   @db.Text
+  refreshToken String?   @db.Text
+  tokenExpiry  DateTime?
+  metadata     Json?
+  connectedAt  DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  @@unique([userId, provider])
+}
+
+model RecruiterContact {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email         String
+  name          String?
+  company       String?
+  title         String?
+  source        String   @default("manual")
+  applicationId String?
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId, email])
+  @@index([userId, company])
 }
 
 model ProcedureStep {

@@ -149,9 +149,56 @@
     "watchUpdated": "Mis à jour"
   },
   "jobs": {
-    "title": "Agent Emploi",
-    "addApplication": "Nouvelle candidature",
+    "title": "Jade — Agent Emploi",
+    "addApplication": "Ajouter manuellement",
     "kanbanTitle": "Suivi des candidatures",
+    "tabs": {
+      "connections": "Connexions",
+      "opportunities": "Opportunités",
+      "contacts": "Contacts RH",
+      "workflow": "Workflow"
+    },
+    "connections": {
+      "title": "Sources connectées",
+      "gmail": "Gmail",
+      "indeed": "Indeed (via alertes)",
+      "jobBank": "Job Bank Canada",
+      "connect": "Connecter Gmail",
+      "connected": "Connecté",
+      "disconnect": "Déconnecter",
+      "notConfigured": "Configurez GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET sur le serveur.",
+      "syncAlerts": "Importer alertes emploi"
+    },
+    "opportunities": {
+      "title": "Recherche d'offres",
+      "keywords": "Mots-clés (ex. développeur logiciel)",
+      "location": "Ville ou région",
+      "search": "Rechercher Job Bank",
+      "searching": "Recherche…",
+      "import": "Importer",
+      "results": "Résultats",
+      "noResults": "Lancez une recherche Job Bank pour voir les offres."
+    },
+    "contacts": {
+      "title": "Base contacts RH",
+      "email": "Courriel",
+      "company": "Entreprise",
+      "source": "Source",
+      "empty": "Aucun contact — générez un dossier candidature pour extraire les courriels RH."
+    },
+    "workflow": {
+      "title": "Préparation & envoi",
+      "preparePackage": "Préparer dossier (CV + lettre)",
+      "preparing": "Préparation IA…",
+      "validateSend": "Valider et créer brouillon Gmail",
+      "packageTitle": "Dossier candidature — validation requise",
+      "adaptedCv": "CV adapté à l'offre",
+      "coverLetter": "Lettre de motivation",
+      "fitScore": "Score adéquation ATS",
+      "createDraft": "Créer brouillon Gmail (envoi manuel)",
+      "close": "Fermer",
+      "disclaimer": "Immg ne envoie jamais automatiquement. Vous devez valider et envoyer depuis Gmail."
+    },
     "company": "Entreprise",
     "jobTitle": "Poste",
     "jobUrl": "URL offre",
