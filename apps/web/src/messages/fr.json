@@ -161,30 +161,38 @@
     "connections": {
       "title": "Sources connectées",
       "gmail": "Gmail",
-      "indeed": "Indeed (via alertes)",
+      "indeed": "Indeed",
       "jobBank": "Job Bank Canada",
-      "connect": "Connecter Gmail",
+      "connectGoogle": "Se connecter avec Google",
       "connected": "Connecté",
       "disconnect": "Déconnecter",
-      "notConfigured": "Configurez GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET sur le serveur.",
-      "syncAlerts": "Importer alertes emploi"
+      "serviceUnavailable": "Connexion Google temporairement indisponible. Réessayez plus tard.",
+      "syncAlerts": "Importer alertes emploi",
+      "oneClickHint": "Connectez vos comptes en un clic. Vos mots de passe restent chez Google — Immg ne les stocke jamais."
     },
     "opportunities": {
-      "title": "Recherche d'offres",
-      "keywords": "Mots-clés (ex. développeur logiciel)",
+      "title": "Opportunités pour vous",
+      "keywords": "Mots-clés",
       "location": "Ville ou région",
-      "search": "Rechercher Job Bank",
+      "search": "Rechercher",
       "searching": "Recherche…",
       "import": "Importer",
       "results": "Résultats",
-      "noResults": "Lancez une recherche Job Bank pour voir les offres."
+      "noResults": "Analysez votre CV ou lancez une recherche.",
+      "cvAnalysis": "Analyse de votre CV — postes recommandés",
+      "noCv": "Uploadez votre CV pour obtenir des recommandations de postes personnalisées.",
+      "uploadCv": "Uploader mon CV",
+      "suggestedTitles": "Cliquez pour rechercher ces postes sur Job Bank :",
+      "fitScore": "Adéquation",
+      "rankedByCv": "trié par adéquation avec votre CV"
     },
     "contacts": {
       "title": "Base contacts RH",
       "email": "Courriel",
       "company": "Entreprise",
       "source": "Source",
-      "empty": "Aucun contact — générez un dossier candidature pour extraire les courriels RH."
+      "empty": "Les contacts RH seront ajoutés automatiquement lors de l'import d'offres ou de la synchronisation Gmail.",
+      "autoAdded": "Ajout automatique : chaque courriel RH ou entreprise détecté est enregistré ici."
     },
     "workflow": {
       "title": "Préparation & envoi",

@@ -100,6 +100,13 @@ export async function searchJobBank(
 export async function fetchJobBankPostingDescription(
   externalJobId: string,
 ): Promise<string> {
+  const { description } = await fetchJobBankPostingDetails(externalJobId);
+  return description;
+}
+
+export async function fetchJobBankPostingDetails(
+  externalJobId: string,
+): Promise<{ description: string; emails: string[] }> {
   const res = await fetch(
     `https://www.jobbank.gc.ca/jobsearch/jobposting/${externalJobId}`,
     {
@@ -109,16 +116,24 @@ export async function fetchJobBankPostingDescription(
     },
   );
 
-  if (!res.ok) return "";
+  if (!res.ok) return { description: "", emails: [] };
 
   const html = await res.text();
   const mainMatch = html.match(/<main[\s\S]*?>([\s\S]*?)<\/main>/i);
   const source = mainMatch?.[1] ?? html;
-  return source
+  const description = source
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 6000);
+
+  const mailtoMatches = html.match(/mailto:([a-zA-Z0-9._%+-]+@[^\s"'<>]+)/gi) ?? [];
+  const mailtos = mailtoMatches.map((m) => m.replace(/^mailto:/i, "").toLowerCase());
+  const inText =
+    description.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) ?? [];
+  const emails = [...new Set([...mailtos, ...inText])];
+
+  return { description, emails };
 }

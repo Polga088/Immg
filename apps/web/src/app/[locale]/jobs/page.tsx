@@ -46,11 +46,12 @@ export default async function JobsPage({
         gmail: t("connections.gmail"),
         indeed: t("connections.indeed"),
         jobBank: t("connections.jobBank"),
-        connect: t("connections.connect"),
+        connectGoogle: t("connections.connectGoogle"),
         connected: t("connections.connected"),
         disconnect: t("connections.disconnect"),
-        notConfigured: t("connections.notConfigured"),
+        serviceUnavailable: t("connections.serviceUnavailable"),
         syncAlerts: t("connections.syncAlerts"),
+        oneClickHint: t("connections.oneClickHint"),
       }}
       opportunitiesLabels={{
         title: t("opportunities.title"),
@@ -61,6 +62,12 @@ export default async function JobsPage({
         import: t("opportunities.import"),
         results: t("opportunities.results"),
         noResults: t("opportunities.noResults"),
+        cvAnalysis: t("opportunities.cvAnalysis"),
+        noCv: t("opportunities.noCv"),
+        uploadCv: t("opportunities.uploadCv"),
+        suggestedTitles: t("opportunities.suggestedTitles"),
+        fitScore: t("opportunities.fitScore"),
+        rankedByCv: t("opportunities.rankedByCv"),
       }}
       contactsLabels={{
         title: t("contacts.title"),
@@ -68,6 +75,7 @@ export default async function JobsPage({
         company: t("contacts.company"),
         source: t("contacts.source"),
         empty: t("contacts.empty"),
+        autoAdded: t("contacts.autoAdded"),
       }}
       workflowLabels={{
         title: t("workflow.title"),

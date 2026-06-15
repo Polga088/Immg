@@ -161,30 +161,38 @@
     "connections": {
       "title": "Connected sources",
       "gmail": "Gmail",
-      "indeed": "Indeed (via alerts)",
+      "indeed": "Indeed",
       "jobBank": "Job Bank Canada",
-      "connect": "Connect Gmail",
+      "connectGoogle": "Sign in with Google",
       "connected": "Connected",
       "disconnect": "Disconnect",
-      "notConfigured": "Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET on the server.",
-      "syncAlerts": "Import job alerts"
+      "serviceUnavailable": "Google sign-in is temporarily unavailable. Please try again later.",
+      "syncAlerts": "Import job alerts",
+      "oneClickHint": "Connect your accounts in one click. Your passwords stay with Google — Immg never stores them."
     },
     "opportunities": {
-      "title": "Job search",
-      "keywords": "Keywords (e.g. software developer)",
+      "title": "Opportunities for you",
+      "keywords": "Keywords",
       "location": "City or region",
-      "search": "Search Job Bank",
+      "search": "Search",
       "searching": "Searching…",
       "import": "Import",
       "results": "Results",
-      "noResults": "Run a Job Bank search to see listings."
+      "noResults": "Upload your CV or run a search.",
+      "cvAnalysis": "CV analysis — recommended job titles",
+      "noCv": "Upload your CV to get personalized job title recommendations.",
+      "uploadCv": "Upload my CV",
+      "suggestedTitles": "Click to search Job Bank for these roles:",
+      "fitScore": "Fit",
+      "rankedByCv": "ranked by CV match"
     },
     "contacts": {
       "title": "HR contact database",
       "email": "Email",
       "company": "Company",
       "source": "Source",
-      "empty": "No contacts yet — prepare an application package to extract recruiter emails."
+      "empty": "HR contacts are added automatically when you import jobs or sync Gmail.",
+      "autoAdded": "Auto-added: every recruiter or company email detected is saved here."
     },
     "workflow": {
       "title": "Preparation & send",

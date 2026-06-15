@@ -28,11 +28,12 @@ export interface JadeHubProps {
     gmail: string;
     indeed: string;
     jobBank: string;
-    connect: string;
+    connectGoogle: string;
     connected: string;
     disconnect: string;
-    notConfigured: string;
+    serviceUnavailable: string;
     syncAlerts: string;
+    oneClickHint: string;
   };
   opportunitiesLabels: {
     title: string;
@@ -43,6 +44,12 @@ export interface JadeHubProps {
     import: string;
     results: string;
     noResults: string;
+    cvAnalysis: string;
+    noCv: string;
+    uploadCv: string;
+    suggestedTitles: string;
+    fitScore: string;
+    rankedByCv: string;
   };
   contactsLabels: {
     title: string;
@@ -50,6 +57,7 @@ export interface JadeHubProps {
     company: string;
     source: string;
     empty: string;
+    autoAdded: string;
   };
   workflowLabels: {
     title: string;
@@ -147,7 +155,11 @@ export function JadeHub(props: JadeHubProps) {
           />
         )}
         {tab === "opportunities" && (
-          <JadeOpportunities labels={props.opportunitiesLabels} onImported={loadApps} />
+          <JadeOpportunities
+            locale={props.locale}
+            labels={props.opportunitiesLabels}
+            onImported={loadApps}
+          />
         )}
         {tab === "contacts" && (
           <JadeContacts labels={props.contactsLabels} refreshKey={refreshKey} />

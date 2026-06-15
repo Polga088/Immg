@@ -20,6 +20,8 @@ export async function GET() {
         accountEmail:
           integrations.find((i) => i.provider === "gmail")?.accountEmail ?? null,
         configured: google.configured,
+        connectHint:
+          "Un clic — vous vous connectez avec votre compte Google. Immg ne voit jamais votre mot de passe.",
       },
       {
         provider: "indeed",
@@ -27,6 +29,7 @@ export async function GET() {
         accountEmail: null,
         configured: true,
         note: "Via alertes Gmail (Indeed n'a pas d'API publique)",
+        connectHint: "Connectez Gmail pour importer automatiquement vos alertes Indeed.",
       },
       {
         provider: "job_bank",
@@ -34,6 +37,7 @@ export async function GET() {
         accountEmail: null,
         configured: true,
         note: "Recherche intégrée Job Bank Canada",
+        connectHint: "Actif pour tous les utilisateurs — aucune connexion requise.",
       },
     ];
 

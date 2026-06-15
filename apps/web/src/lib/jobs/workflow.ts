@@ -4,6 +4,7 @@ import { loadPrompt } from "@/agents/prompts/loader";
 import { scoreATS } from "@/lib/ats/scorer";
 import { fetchUserMemory } from "@/lib/chat/user-memory";
 import { createGmailDraft } from "./gmail";
+import { autoRegisterContact, autoRegisterContactsFromText } from "./contacts";
 
 function extractEmail(text: string): string | null {
   const match = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
@@ -86,29 +87,22 @@ End with a note that the candidate must review before sending.`,
   });
 
   if (recruiterEmail) {
-    const existing = await prisma.recruiterContact.findFirst({
-      where: { userId, email: recruiterEmail },
+    await autoRegisterContact(userId, {
+      email: recruiterEmail,
+      company: application.company,
+      title: application.title,
+      source: application.source,
+      applicationId: application.id,
     });
-    if (existing) {
-      await prisma.recruiterContact.update({
-        where: { id: existing.id },
-        data: {
-          company: application.company,
-          applicationId: application.id,
-        },
-      });
-    } else {
-      await prisma.recruiterContact.create({
-        data: {
-          userId,
-          email: recruiterEmail,
-          company: application.company,
-          title: application.title,
-          source: application.source,
-          applicationId: application.id,
-        },
-      });
-    }
+  }
+
+  if (application.jobDescription) {
+    await autoRegisterContactsFromText(userId, application.jobDescription, {
+      company: application.company,
+      title: application.title,
+      source: application.source,
+      applicationId: application.id,
+    });
   }
 
   return {

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { ExternalLink, Plus, Search } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ExternalLink, FileText, Plus, Search, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export interface JobListingResult {
   externalJobId: string;
@@ -12,9 +13,18 @@ export interface JobListingResult {
   source: string;
   jobUrl: string;
   postedAt: string;
+  fitScore?: number;
+}
+
+interface CvSuggestions {
+  hasCv: boolean;
+  cvFilename: string | null;
+  suggestedTitles: string[];
+  topSkills: string[];
 }
 
 interface JadeOpportunitiesProps {
+  locale: string;
   labels: {
     title: string;
     keywords: string;
@@ -24,28 +34,66 @@ interface JadeOpportunitiesProps {
     import: string;
     results: string;
     noResults: string;
+    cvAnalysis: string;
+    noCv: string;
+    uploadCv: string;
+    suggestedTitles: string;
+    fitScore: string;
+    rankedByCv: string;
   };
   onImported: () => void;
 }
 
-export function JadeOpportunities({ labels, onImported }: JadeOpportunitiesProps) {
-  const [keywords, setKeywords] = useState("software developer");
+export function JadeOpportunities({ locale, labels, onImported }: JadeOpportunitiesProps) {
+  const [keywords, setKeywords] = useState("");
   const [location, setLocation] = useState("Montreal");
   const [results, setResults] = useState<JobListingResult[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<CvSuggestions | null>(null);
+  const [rankedByCv, setRankedByCv] = useState(false);
 
-  async function search() {
+  const loadSuggestions = useCallback(() => {
+    fetch("/api/jobs/suggestions")
+      .then((r) => r.json())
+      .then((data: CvSuggestions) => {
+        setSuggestions(data);
+        if (data.suggestedTitles[0]) {
+          setKeywords(data.suggestedTitles[0]);
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    loadSuggestions();
+  }, [loadSuggestions]);
+
+  useEffect(() => {
+    if (suggestions?.hasCv && suggestions.suggestedTitles[0] && results.length === 0) {
+      void search(suggestions.suggestedTitles[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once when CV suggestions load
+  }, [suggestions?.hasCv, suggestions?.suggestedTitles[0]]);
+
+  async function search(query?: string) {
+    const q = query ?? keywords;
+    if (!q.trim()) return;
     setLoading(true);
     try {
       const res = await fetch("/api/jobs/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keywords, location }),
+        body: JSON.stringify({
+          keywords: q,
+          location,
+          rankByCv: suggestions?.hasCv ?? false,
+        }),
       });
       const data = await res.json();
       setResults(data.results ?? []);
       setTotal(data.total ?? 0);
+      setRankedByCv(Boolean(data.rankedByCv));
+      if (query) setKeywords(query);
     } finally {
       setLoading(false);
     }
@@ -66,6 +114,51 @@ export function JadeOpportunities({ labels, onImported }: JadeOpportunitiesProps
         <Search className="h-5 w-5 text-emerald-600" />
         {labels.title}
       </h2>
+
+      {suggestions?.hasCv ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 space-y-3">
+          <p className="text-sm font-medium flex items-center gap-2 text-emerald-900">
+            <Sparkles className="h-4 w-4" />
+            {labels.cvAnalysis}
+            {suggestions.cvFilename && (
+              <span className="text-xs font-normal text-emerald-700">
+                ({suggestions.cvFilename})
+              </span>
+            )}
+          </p>
+          <p className="text-xs text-emerald-800">{labels.suggestedTitles}</p>
+          <div className="flex flex-wrap gap-2">
+            {suggestions.suggestedTitles.map((title) => (
+              <button
+                key={title}
+                type="button"
+                onClick={() => void search(title)}
+                className="rounded-full bg-white border border-emerald-300 px-3 py-1 text-xs text-emerald-800 hover:bg-emerald-100"
+              >
+                {title}
+              </button>
+            ))}
+          </div>
+          {suggestions.topSkills.length > 0 && (
+            <p className="text-xs text-zinc-600">
+              Skills: {suggestions.topSkills.join(", ")}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-amber-900 flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            {labels.noCv}
+          </p>
+          <Link
+            href={`/${locale}/cv`}
+            className="text-sm rounded-full bg-amber-500 px-4 py-2 text-white hover:bg-amber-600"
+          >
+            {labels.uploadCv}
+          </Link>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         <input
@@ -93,6 +186,7 @@ export function JadeOpportunities({ labels, onImported }: JadeOpportunitiesProps
       {results.length > 0 && (
         <p className="text-xs text-zinc-500">
           {labels.results}: {results.length} / {total}
+          {rankedByCv && ` · ${labels.rankedByCv}`}
         </p>
       )}
 
@@ -106,7 +200,14 @@ export function JadeOpportunities({ labels, onImported }: JadeOpportunitiesProps
             className="rounded-lg border border-zinc-100 bg-white p-3 flex flex-wrap items-start justify-between gap-2"
           >
             <div className="min-w-0">
-              <p className="font-medium text-sm capitalize">{job.title}</p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-medium text-sm capitalize">{job.title}</p>
+                {job.fitScore != null && (
+                  <span className="text-[10px] rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5">
+                    {labels.fitScore}: {job.fitScore}%
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-zinc-600">{job.company}</p>
               <p className="text-xs text-zinc-400">
                 {job.location}

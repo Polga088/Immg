@@ -19,6 +19,7 @@ interface JadeContactsProps {
     company: string;
     source: string;
     empty: string;
+    autoAdded: string;
   };
   refreshKey: number;
 }
@@ -42,6 +43,7 @@ export function JadeContacts({ labels, refreshKey }: JadeContactsProps) {
         <Users className="h-5 w-5 text-indigo-600" />
         {labels.title}
       </h2>
+      <p className="text-xs text-zinc-500">{labels.autoAdded}</p>
       {contacts.length === 0 ? (
         <p className="text-sm text-zinc-400 text-center py-8">{labels.empty}</p>
       ) : (

@@ -3,8 +3,13 @@ import { generateWithProvider } from "@/lib/ai/provider";
 import { loadPrompt } from "@/agents/prompts/loader";
 import { fetchUserMemory } from "@/lib/chat/user-memory";
 import { isValidApplicationStatus } from "./constants";
-import { fetchJobBankPostingDescription, type JobBankListing } from "./job-bank";
+import { fetchJobBankPostingDetails, type JobBankListing } from "./job-bank";
 import type { JobSource } from "./sources";
+import {
+  autoRegisterContact,
+  autoRegisterContactsFromText,
+  parseEmailFromHeader,
+} from "./contacts";
 
 export async function listApplications(userId: string) {
   return prisma.application.findMany({
@@ -48,7 +53,7 @@ export async function createApplication(
     recruiterName?: string;
   },
 ) {
-  return prisma.application.create({
+  const app = await prisma.application.create({
     data: {
       userId,
       company: data.company,
@@ -64,6 +69,28 @@ export async function createApplication(
       status: "draft",
     },
   });
+
+  if (data.recruiterEmail) {
+    await autoRegisterContact(userId, {
+      email: data.recruiterEmail,
+      name: data.recruiterName,
+      company: data.company,
+      title: data.title,
+      source: data.source ?? "manual",
+      applicationId: app.id,
+    });
+  }
+
+  if (data.jobDescription) {
+    await autoRegisterContactsFromText(userId, data.jobDescription, {
+      company: data.company,
+      title: data.title,
+      source: data.source ?? "manual",
+      applicationId: app.id,
+    });
+  }
+
+  return app;
 }
 
 export async function importJobBankListing(userId: string, listing: JobBankListing) {
@@ -72,9 +99,9 @@ export async function importJobBankListing(userId: string, listing: JobBankListi
   });
   if (existing) return existing;
 
-  const description = await fetchJobBankPostingDescription(listing.externalJobId);
+  const { description, emails } = await fetchJobBankPostingDetails(listing.externalJobId);
 
-  return createApplication(userId, {
+  const app = await createApplication(userId, {
     company: listing.company,
     title: listing.title,
     jobUrl: listing.jobUrl,
@@ -83,7 +110,21 @@ export async function importJobBankListing(userId: string, listing: JobBankListi
     location: listing.location,
     salary: listing.salary,
     jobDescription: description,
+    recruiterEmail: emails[0],
+    recruiterName: listing.company,
   });
+
+  for (const email of emails.slice(1)) {
+    await autoRegisterContact(userId, {
+      email,
+      company: listing.company,
+      title: listing.title,
+      source: "job_bank",
+      applicationId: app.id,
+    });
+  }
+
+  return app;
 }
 
 export async function importGmailAlert(
@@ -95,6 +136,7 @@ export async function importGmailAlert(
     from: string;
     snippet: string;
     messageId: string;
+    subject?: string;
   },
 ) {
   const source: JobSource = alert.jobUrl?.includes("indeed") ? "indeed" : "gmail";
@@ -113,17 +155,39 @@ export async function importGmailAlert(
   if (existing) return existing;
 
   const emailMatch = alert.from.match(/<([^>]+)>/);
-  const recruiterEmail = emailMatch?.[1] ?? null;
+  const parsed = parseEmailFromHeader(alert.from);
+  const recruiterEmail = parsed.email || emailMatch?.[1] || null;
 
-  return createApplication(userId, {
+  const app = await createApplication(userId, {
     company,
     title,
     jobUrl: alert.jobUrl ?? undefined,
     source,
     jobDescription: alert.snippet,
     recruiterEmail: recruiterEmail ?? undefined,
-    recruiterName: company,
+    recruiterName: parsed.name ?? company,
   });
+
+  if (recruiterEmail) {
+    await autoRegisterContact(userId, {
+      email: recruiterEmail,
+      name: parsed.name,
+      company,
+      title,
+      source,
+      applicationId: app.id,
+      notes: alert.subject ?? undefined,
+    });
+  }
+
+  await autoRegisterContactsFromText(userId, `${alert.snippet} ${alert.from}`, {
+    company,
+    title,
+    source,
+    applicationId: app.id,
+  });
+
+  return app;
 }
 
 export async function updateApplicationStatus(
