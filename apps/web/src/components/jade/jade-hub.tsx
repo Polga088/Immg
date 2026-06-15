@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AgentHeader } from "@/components/agent-card";
 import { ChatPanel } from "@/components/chat-panel";
@@ -29,15 +28,20 @@ export interface JadeHubProps {
     gmail: string;
     indeed: string;
     jobBank: string;
-    connectGoogle: string;
+    connectGmail: string;
+    connecting: string;
     connected: string;
     disconnect: string;
-    serviceUnavailable: string;
     syncAlerts: string;
     oneClickHint: string;
-    oauthConnected: string;
-    oauthFailed: string;
+    gmailEmail: string;
+    appPassword: string;
+    appPasswordHint: string;
+    appPasswordHelp: string;
+    connectFailed: string;
+    invalidCredentials: string;
     syncFailed: string;
+    connectSuccess: string;
   };
   opportunitiesLabels: {
     title: string;
@@ -93,7 +97,6 @@ export interface JadeHubProps {
 }
 
 export function JadeHub(props: JadeHubProps) {
-  const searchParams = useSearchParams();
   const [tab, setTab] = useState<JadeTab>("connections");
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -101,12 +104,6 @@ export function JadeHub(props: JadeHubProps) {
   const [title, setTitle] = useState("");
   const [jobUrl, setJobUrl] = useState("");
   const [toast, setToast] = useState<string | null>(null);
-
-  const oauthMessage = (() => {
-    if (searchParams.get("gmail") === "connected") return "connected";
-    if (searchParams.get("error")?.startsWith("oauth")) return "failed";
-    return null;
-  })();
 
   const loadApps = useCallback(() => {
     fetch("/api/jobs")
@@ -126,12 +123,6 @@ export function JadeHub(props: JadeHubProps) {
     const interval = setInterval(loadApps, 4000);
     return () => clearInterval(interval);
   }, [hasProcessing, loadApps]);
-
-  useEffect(() => {
-    if (oauthMessage === "connected") {
-      setTab("connections");
-    }
-  }, [oauthMessage]);
 
   async function addManual() {
     await fetch("/api/jobs", {
@@ -195,8 +186,6 @@ export function JadeHub(props: JadeHubProps) {
       <div className="rounded-2xl glass border border-white/60 p-6 shadow-sm min-h-[320px]">
         {tab === "connections" && (
           <JadeConnections
-            locale={props.locale}
-            oauthMessage={oauthMessage}
             labels={props.connectionsLabels}
             onGmailSynced={loadApps}
           />

@@ -1,11 +1,19 @@
 import { prisma } from "@immg/db";
 import { getAppBaseUrl } from "@/lib/app-url";
+import { decryptGmailSecret, encryptGmailSecret, normalizeAppPassword } from "./gmail-crypto";
+import {
+  createGmailDraftImap,
+  fetchGmailJobAlertsImap,
+  verifyGmailAppPassword,
+} from "./gmail-imap";
 
 const GMAIL_SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
   "https://www.googleapis.com/auth/gmail.compose",
   "https://www.googleapis.com/auth/userinfo.email",
 ].join(" ");
+
+export type GmailConnectionMethod = "app_password" | "oauth";
 
 export function getGoogleOAuthConfig() {
   const clientId = process.env.GOOGLE_CLIENT_ID ?? "";
@@ -15,6 +23,82 @@ export function getGoogleOAuthConfig() {
     `${getAppBaseUrl()}/api/jobs/oauth/gmail/callback`;
 
   return { clientId, clientSecret, redirectUri, configured: Boolean(clientId && clientSecret) };
+}
+
+function getConnectionMethod(metadata: unknown, hasRefreshToken: boolean): GmailConnectionMethod {
+  const method = (metadata as { connectionMethod?: string } | null)?.connectionMethod;
+  if (method === "app_password") return "app_password";
+  if (method === "oauth" || hasRefreshToken) return "oauth";
+  return "app_password";
+}
+
+export async function getGmailCredentials(userId: string): Promise<{
+  method: GmailConnectionMethod;
+  email: string;
+  appPassword?: string;
+  accessToken?: string;
+} | null> {
+  const integration = await prisma.jobIntegration.findUnique({
+    where: { userId_provider: { userId, provider: "gmail" } },
+  });
+  if (!integration?.accountEmail) return null;
+
+  const method = getConnectionMethod(integration.metadata, Boolean(integration.refreshToken));
+
+  if (method === "app_password") {
+    if (!integration.accessToken) return null;
+    return {
+      method,
+      email: integration.accountEmail,
+      appPassword: decryptGmailSecret(integration.accessToken),
+    };
+  }
+
+  const accessToken = await getValidGmailAccessToken(userId);
+  if (!accessToken) return null;
+
+  return {
+    method: "oauth",
+    email: integration.accountEmail,
+    accessToken,
+  };
+}
+
+export async function connectGmailWithAppPassword(
+  userId: string,
+  email: string,
+  appPassword: string,
+): Promise<void> {
+  const normalizedEmail = email.toLowerCase().trim();
+  const normalizedPassword = normalizeAppPassword(appPassword);
+
+  if (!normalizedEmail || normalizedPassword.length < 8) {
+    throw new Error("INVALID_GMAIL_CREDENTIALS");
+  }
+
+  await verifyGmailAppPassword(normalizedEmail, normalizedPassword);
+
+  await prisma.jobIntegration.upsert({
+    where: { userId_provider: { userId, provider: "gmail" } },
+    create: {
+      userId,
+      provider: "gmail",
+      accountEmail: normalizedEmail,
+      accessToken: encryptGmailSecret(normalizedPassword),
+      refreshToken: null,
+      tokenExpiry: null,
+      connectedAt: new Date(),
+      metadata: { connectionMethod: "app_password" },
+    },
+    update: {
+      accountEmail: normalizedEmail,
+      accessToken: encryptGmailSecret(normalizedPassword),
+      refreshToken: null,
+      tokenExpiry: null,
+      connectedAt: new Date(),
+      metadata: { connectionMethod: "app_password" },
+    },
+  });
 }
 
 export function buildGmailAuthUrl(state: string): string {
@@ -84,6 +168,9 @@ export async function getValidGmailAccessToken(userId: string): Promise<string |
 
   if (!integration?.accessToken) return null;
 
+  const method = getConnectionMethod(integration.metadata, Boolean(integration.refreshToken));
+  if (method === "app_password") return null;
+
   const expiry = integration.tokenExpiry?.getTime() ?? 0;
   if (expiry > Date.now() + 60_000) {
     return integration.accessToken;
@@ -148,7 +235,14 @@ function parseAlertFields(subject: string, snippet: string): {
 }
 
 export async function fetchGmailJobAlerts(userId: string): Promise<GmailJobAlert[]> {
-  const accessToken = await getValidGmailAccessToken(userId);
+  const creds = await getGmailCredentials(userId);
+  if (!creds) return [];
+
+  if (creds.method === "app_password" && creds.appPassword) {
+    return fetchGmailJobAlertsImap(creds.email, creds.appPassword);
+  }
+
+  const accessToken = creds.accessToken;
   if (!accessToken) return [];
 
   const params = new URLSearchParams({
@@ -212,7 +306,14 @@ export async function createGmailDraft(
     body: string;
   },
 ): Promise<string> {
-  const accessToken = await getValidGmailAccessToken(userId);
+  const creds = await getGmailCredentials(userId);
+  if (!creds) throw new Error("Gmail not connected");
+
+  if (creds.method === "app_password" && creds.appPassword) {
+    return createGmailDraftImap(creds.email, creds.appPassword, options);
+  }
+
+  const accessToken = creds.accessToken;
   if (!accessToken) throw new Error("Gmail not connected");
 
   const raw = Buffer.from(

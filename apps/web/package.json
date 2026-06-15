@@ -19,6 +19,7 @@
     "ai-sdk-ollama": "^3.0.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
+    "imapflow": "^1.4.1",
     "lucide-react": "^0.511.0",
     "mammoth": "^1.12.0",
     "next": "16.2.7",

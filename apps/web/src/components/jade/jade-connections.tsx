@@ -3,35 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Briefcase, Link2, RefreshCw, Search, Unplug } from "lucide-react";
 
-function GoogleSignInButton({ label, locale }: { label: string; locale: string }) {
-  return (
-    <a
-      href={`/api/jobs/oauth/gmail?locale=${locale}`}
-      className="inline-flex items-center gap-3 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors"
-    >
-      <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden>
-        <path
-          fill="#EA4335"
-          d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-        />
-        <path
-          fill="#4285F4"
-          d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.56 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-        />
-        <path
-          fill="#FBBC05"
-          d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-        />
-        <path
-          fill="#34A853"
-          d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-        />
-      </svg>
-      {label}
-    </a>
-  );
-}
-
 interface IntegrationCard {
   provider: string;
   connected: boolean;
@@ -42,35 +13,38 @@ interface IntegrationCard {
 }
 
 interface JadeConnectionsProps {
-  locale: string;
-  oauthMessage?: string | null;
   labels: {
     title: string;
     gmail: string;
     indeed: string;
     jobBank: string;
-    connectGoogle: string;
+    connectGmail: string;
+    connecting: string;
     connected: string;
     disconnect: string;
-    serviceUnavailable: string;
     syncAlerts: string;
     oneClickHint: string;
-    oauthConnected: string;
-    oauthFailed: string;
+    gmailEmail: string;
+    appPassword: string;
+    appPasswordHint: string;
+    appPasswordHelp: string;
+    connectFailed: string;
+    invalidCredentials: string;
     syncFailed: string;
+    connectSuccess: string;
   };
   onGmailSynced: () => void;
 }
 
-export function JadeConnections({
-  locale,
-  oauthMessage,
-  labels,
-  onGmailSynced,
-}: JadeConnectionsProps) {
+export function JadeConnections({ labels, onGmailSynced }: JadeConnectionsProps) {
   const [integrations, setIntegrations] = useState<IntegrationCard[]>([]);
   const [syncing, setSyncing] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [connectError, setConnectError] = useState<string | null>(null);
+  const [connectSuccess, setConnectSuccess] = useState(false);
+  const [email, setEmail] = useState("");
+  const [appPassword, setAppPassword] = useState("");
 
   const load = useCallback(() => {
     fetch("/api/jobs/integrations")
@@ -88,7 +62,36 @@ export function JadeConnections({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ provider }),
     });
+    setConnectSuccess(false);
     load();
+  }
+
+  async function connectGmail(e: React.FormEvent) {
+    e.preventDefault();
+    setConnecting(true);
+    setConnectError(null);
+    setConnectSuccess(false);
+    try {
+      const res = await fetch("/api/jobs/integrations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: "gmail", email, appPassword }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (data.error === "GMAIL_AUTH_FAILED" || data.error === "INVALID_GMAIL_CREDENTIALS") {
+          setConnectError(labels.invalidCredentials);
+        } else {
+          setConnectError(labels.connectFailed);
+        }
+        return;
+      }
+      setAppPassword("");
+      setConnectSuccess(true);
+      load();
+    } finally {
+      setConnecting(false);
+    }
   }
 
   async function syncGmail() {
@@ -102,8 +105,8 @@ export function JadeConnections({
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        if (data.error === "GMAIL_NOT_CONNECTED") {
-          setSyncError(labels.oauthFailed);
+        if (data.error === "GMAIL_NOT_CONNECTED" || data.error === "GMAIL_AUTH_FAILED") {
+          setSyncError(labels.invalidCredentials);
         } else {
           setSyncError(labels.syncFailed);
         }
@@ -128,16 +131,14 @@ export function JadeConnections({
       </h2>
       <p className="text-sm text-zinc-600">{labels.oneClickHint}</p>
 
-      {oauthMessage && (
-        <p
-          className={`text-sm rounded-lg px-3 py-2 ${
-            oauthMessage === "connected"
-              ? "bg-green-50 text-green-800"
-              : "bg-red-50 text-red-800"
-          }`}
-        >
-          {oauthMessage === "connected" ? labels.oauthConnected : labels.oauthFailed}
+      {connectSuccess && (
+        <p className="text-sm rounded-lg px-3 py-2 bg-green-50 text-green-800">
+          {labels.connectSuccess}
         </p>
+      )}
+
+      {connectError && (
+        <p className="text-sm rounded-lg px-3 py-2 bg-red-50 text-red-800">{connectError}</p>
       )}
 
       {syncError && (
@@ -172,10 +173,42 @@ export function JadeConnections({
                 </button>
               </div>
             </>
-          ) : gmail?.configured ? (
-            <GoogleSignInButton label={labels.connectGoogle} locale={locale} />
           ) : (
-            <p className="text-xs text-amber-700">{labels.serviceUnavailable}</p>
+            <form onSubmit={(e) => void connectGmail(e)} className="space-y-2">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={labels.gmailEmail}
+                required
+                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <input
+                type="password"
+                value={appPassword}
+                onChange={(e) => setAppPassword(e.target.value)}
+                placeholder={labels.appPassword}
+                required
+                autoComplete="off"
+                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              />
+              <p className="text-[11px] text-zinc-500">{labels.appPasswordHint}</p>
+              <a
+                href="https://support.google.com/accounts/answer/185833"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-blue-600 hover:underline block"
+              >
+                {labels.appPasswordHelp}
+              </a>
+              <button
+                type="submit"
+                disabled={connecting || !email || !appPassword}
+                className="w-full rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+              >
+                {connecting ? labels.connecting : labels.connectGmail}
+              </button>
+            </form>
           )}
         </div>
 
@@ -186,7 +219,7 @@ export function JadeConnections({
           </div>
           <p className="text-xs text-zinc-600">{indeed?.connectHint ?? indeed?.note}</p>
           <p className="text-sm text-zinc-500">
-            {gmail?.connected ? labels.connected : labels.connectGoogle}
+            {gmail?.connected ? labels.connected : labels.connectGmail}
           </p>
         </div>
 

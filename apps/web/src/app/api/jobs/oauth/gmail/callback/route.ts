@@ -54,7 +54,7 @@ export async function GET(req: Request) {
         refreshToken: tokens.refresh_token ?? null,
         tokenExpiry,
         connectedAt: new Date(),
-        metadata: { scopes: tokens.scope },
+        metadata: { scopes: tokens.scope, connectionMethod: "oauth" },
       },
       update: {
         accountEmail,
@@ -62,7 +62,7 @@ export async function GET(req: Request) {
         refreshToken: tokens.refresh_token ?? undefined,
         tokenExpiry,
         connectedAt: new Date(),
-        metadata: { scopes: tokens.scope },
+        metadata: { scopes: tokens.scope, connectionMethod: "oauth" },
       },
     });
 

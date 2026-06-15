@@ -148,6 +148,13 @@ export async function POST(req: Request) {
       if (error.message === "Gmail not connected") {
         return Response.json({ error: "GMAIL_NOT_CONNECTED" }, { status: 400 });
       }
+      if (
+        error.message.includes("AUTHENTICATIONFAILED") ||
+        error.message.includes("Invalid credentials") ||
+        error.message === "Gmail list failed"
+      ) {
+        return Response.json({ error: "GMAIL_AUTH_FAILED" }, { status: 401 });
+      }
     }
     console.error(error);
     return Response.json({ error: "Job action failed" }, { status: 500 });

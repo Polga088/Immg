@@ -53,12 +53,7 @@ if [ -f .env ]; then
   source .env
   BASE="${NEXT_PUBLIC_APP_URL:-http://localhost:${NGINX_HTTP_PORT:-8080}}"
   echo "Check: curl ${BASE}/api/health"
-  if [ -z "${GOOGLE_CLIENT_ID:-}" ] || [ -z "${GOOGLE_CLIENT_SECRET:-}" ]; then
-    echo ""
-    echo "WARNING: GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET not set in .env"
-    echo "  Gmail OAuth will not work until configured (one-time platform setup)."
-    echo "  Redirect URI: ${BASE}/api/jobs/oauth/gmail/callback"
-  fi
+  echo "Gmail: users connect via Google App Password (no GOOGLE_CLIENT_ID required)."
   echo "Ingest IRCC: ./scripts/ingest-ircc-vps.sh (required after deploy to fill embeddings)"
 else
   echo "Check: curl http://localhost:${NGINX_HTTP_PORT:-8080}/api/health"
