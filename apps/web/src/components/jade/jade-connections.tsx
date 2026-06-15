@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Briefcase, Link2, RefreshCw, Search, Unplug } from "lucide-react";
 
-function GoogleSignInButton({ label }: { label: string }) {
+function GoogleSignInButton({ label, locale }: { label: string; locale: string }) {
   return (
     <a
-      href="/api/jobs/oauth/gmail"
+      href={`/api/jobs/oauth/gmail?locale=${locale}`}
       className="inline-flex items-center gap-3 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors"
     >
       <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden>
@@ -42,6 +42,8 @@ interface IntegrationCard {
 }
 
 interface JadeConnectionsProps {
+  locale: string;
+  oauthMessage?: string | null;
   labels: {
     title: string;
     gmail: string;
@@ -53,13 +55,22 @@ interface JadeConnectionsProps {
     serviceUnavailable: string;
     syncAlerts: string;
     oneClickHint: string;
+    oauthConnected: string;
+    oauthFailed: string;
+    syncFailed: string;
   };
   onGmailSynced: () => void;
 }
 
-export function JadeConnections({ labels, onGmailSynced }: JadeConnectionsProps) {
+export function JadeConnections({
+  locale,
+  oauthMessage,
+  labels,
+  onGmailSynced,
+}: JadeConnectionsProps) {
   const [integrations, setIntegrations] = useState<IntegrationCard[]>([]);
   const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   const load = useCallback(() => {
     fetch("/api/jobs/integrations")
@@ -82,13 +93,24 @@ export function JadeConnections({ labels, onGmailSynced }: JadeConnectionsProps)
 
   async function syncGmail() {
     setSyncing(true);
+    setSyncError(null);
     try {
-      await fetch("/api/jobs", {
+      const res = await fetch("/api/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "syncGmail" }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (data.error === "GMAIL_NOT_CONNECTED") {
+          setSyncError(labels.oauthFailed);
+        } else {
+          setSyncError(labels.syncFailed);
+        }
+        return;
+      }
       onGmailSynced();
+      load();
     } finally {
       setSyncing(false);
     }
@@ -105,6 +127,22 @@ export function JadeConnections({ labels, onGmailSynced }: JadeConnectionsProps)
         {labels.title}
       </h2>
       <p className="text-sm text-zinc-600">{labels.oneClickHint}</p>
+
+      {oauthMessage && (
+        <p
+          className={`text-sm rounded-lg px-3 py-2 ${
+            oauthMessage === "connected"
+              ? "bg-green-50 text-green-800"
+              : "bg-red-50 text-red-800"
+          }`}
+        >
+          {oauthMessage === "connected" ? labels.oauthConnected : labels.oauthFailed}
+        </p>
+      )}
+
+      {syncError && (
+        <p className="text-sm rounded-lg px-3 py-2 bg-red-50 text-red-800">{syncError}</p>
+      )}
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-xl border border-zinc-200 bg-white/80 p-5 space-y-3">
@@ -135,7 +173,7 @@ export function JadeConnections({ labels, onGmailSynced }: JadeConnectionsProps)
               </div>
             </>
           ) : gmail?.configured ? (
-            <GoogleSignInButton label={labels.connectGoogle} />
+            <GoogleSignInButton label={labels.connectGoogle} locale={locale} />
           ) : (
             <p className="text-xs text-amber-700">{labels.serviceUnavailable}</p>
           )}

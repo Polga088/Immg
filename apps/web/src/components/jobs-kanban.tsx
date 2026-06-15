@@ -11,6 +11,11 @@ export interface JobApplication {
   jobUrl: string | null;
   status: string;
   coverLetter: string | null;
+  adaptedCv?: string | null;
+  fitScore?: number | null;
+  packageReady?: boolean;
+  packageStatus?: string;
+  packageError?: string | null;
 }
 
 interface JobsKanbanProps {

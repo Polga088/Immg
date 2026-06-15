@@ -105,6 +105,8 @@ model Application {
   fitScore        Int?
   gmailDraftId    String?
   packageReady    Boolean   @default(false)
+  packageStatus   String    @default("idle")
+  packageError    String?
   scheduledAt     DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt

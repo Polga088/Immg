@@ -82,6 +82,8 @@ End with a note that the candidate must review before sending.`,
       fitScore,
       recruiterEmail,
       packageReady: true,
+      packageStatus: "ready",
+      packageError: null,
       status: "ready",
     },
   });

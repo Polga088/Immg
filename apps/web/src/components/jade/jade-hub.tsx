@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AgentHeader } from "@/components/agent-card";
 import { ChatPanel } from "@/components/chat-panel";
@@ -34,6 +35,9 @@ export interface JadeHubProps {
     serviceUnavailable: string;
     syncAlerts: string;
     oneClickHint: string;
+    oauthConnected: string;
+    oauthFailed: string;
+    syncFailed: string;
   };
   opportunitiesLabels: {
     title: string;
@@ -68,6 +72,10 @@ export interface JadeHubProps {
     emptyColumn: string;
     preparePackage: string;
     preparing: string;
+    backgroundPreparing: string;
+    packageReady: string;
+    packageFailed: string;
+    noCv: string;
     validateSend: string;
     packageTitle: string;
     adaptedCv: string;
@@ -76,6 +84,7 @@ export interface JadeHubProps {
     createDraft: string;
     close: string;
     disclaimer: string;
+    packageReadyToast: string;
   };
   chatPlaceholder: string;
   chatSend: string;
@@ -84,12 +93,20 @@ export interface JadeHubProps {
 }
 
 export function JadeHub(props: JadeHubProps) {
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<JadeTab>("connections");
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [company, setCompany] = useState("");
   const [title, setTitle] = useState("");
   const [jobUrl, setJobUrl] = useState("");
+  const [toast, setToast] = useState<string | null>(null);
+
+  const oauthMessage = (() => {
+    if (searchParams.get("gmail") === "connected") return "connected";
+    if (searchParams.get("error")?.startsWith("oauth")) return "failed";
+    return null;
+  })();
 
   const loadApps = useCallback(() => {
     fetch("/api/jobs")
@@ -101,6 +118,20 @@ export function JadeHub(props: JadeHubProps) {
   useEffect(() => {
     loadApps();
   }, [loadApps]);
+
+  const hasProcessing = applications.some((a) => a.packageStatus === "processing");
+
+  useEffect(() => {
+    if (!hasProcessing) return;
+    const interval = setInterval(loadApps, 4000);
+    return () => clearInterval(interval);
+  }, [hasProcessing, loadApps]);
+
+  useEffect(() => {
+    if (oauthMessage === "connected") {
+      setTab("connections");
+    }
+  }, [oauthMessage]);
 
   async function addManual() {
     await fetch("/api/jobs", {
@@ -123,11 +154,22 @@ export function JadeHub(props: JadeHubProps) {
     if (res.ok) loadApps();
   }
 
+  function handlePackageReady(app: JobApplication) {
+    setToast(`${props.workflowLabels.packageReadyToast}: ${app.title}`);
+    setTimeout(() => setToast(null), 6000);
+  }
+
   const tabOrder: JadeTab[] = ["connections", "opportunities", "contacts", "workflow"];
 
   return (
     <div className="space-y-6">
       <AgentHeader agent="job" title={props.title} locale={props.locale} />
+
+      {toast && (
+        <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm text-emerald-900">
+          {toast}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-1 rounded-xl bg-zinc-100/80 p-1">
         {tabOrder.map((key) => (
@@ -143,6 +185,9 @@ export function JadeHub(props: JadeHubProps) {
             )}
           >
             {props.tabs[key]}
+            {key === "workflow" && hasProcessing && (
+              <span className="ml-1.5 inline-block h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+            )}
           </button>
         ))}
       </div>
@@ -150,6 +195,8 @@ export function JadeHub(props: JadeHubProps) {
       <div className="rounded-2xl glass border border-white/60 p-6 shadow-sm min-h-[320px]">
         {tab === "connections" && (
           <JadeConnections
+            locale={props.locale}
+            oauthMessage={oauthMessage}
             labels={props.connectionsLabels}
             onGmailSynced={loadApps}
           />
@@ -173,6 +220,7 @@ export function JadeHub(props: JadeHubProps) {
             labels={props.workflowLabels}
             onStatusChange={updateStatus}
             onRefresh={loadApps}
+            onPackageReady={handlePackageReady}
           />
         )}
       </div>

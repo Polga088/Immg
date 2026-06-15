@@ -1,4 +1,5 @@
 import { prisma } from "@immg/db";
+import { getAppBaseUrl } from "@/lib/app-url";
 
 const GMAIL_SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
@@ -11,7 +12,7 @@ export function getGoogleOAuthConfig() {
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET ?? "";
   const redirectUri =
     process.env.GOOGLE_REDIRECT_URI ??
-    `${process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "")}/api/jobs/oauth/gmail/callback`;
+    `${getAppBaseUrl()}/api/jobs/oauth/gmail/callback`;
 
   return { clientId, clientSecret, redirectUri, configured: Boolean(clientId && clientSecret) };
 }

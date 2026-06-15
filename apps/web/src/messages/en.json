@@ -168,7 +168,10 @@
       "disconnect": "Disconnect",
       "serviceUnavailable": "Google sign-in is temporarily unavailable. Please try again later.",
       "syncAlerts": "Import job alerts",
-      "oneClickHint": "Connect your accounts in one click. Your passwords stay with Google — Immg never stores them."
+      "oneClickHint": "Connect your accounts in one click. Your passwords stay with Google — Immg never stores them.",
+      "oauthConnected": "Gmail connected successfully. You can now import job alerts.",
+      "oauthFailed": "Google sign-in failed. Please try again or contact support.",
+      "syncFailed": "Could not import alerts. Make sure Gmail is connected."
     },
     "opportunities": {
       "title": "Opportunities for you",
@@ -198,6 +201,11 @@
       "title": "Preparation & send",
       "preparePackage": "Prepare package (CV + letter)",
       "preparing": "AI preparing…",
+      "backgroundPreparing": "Generating in the background — you can switch tabs",
+      "packageReady": "View ready package",
+      "packageFailed": "Generation failed",
+      "noCv": "Upload your CV in the CV section first to generate a package.",
+      "packageReadyToast": "Package ready for",
       "validateSend": "Validate and create Gmail draft",
       "packageTitle": "Application package — review required",
       "adaptedCv": "Job-tailored CV",

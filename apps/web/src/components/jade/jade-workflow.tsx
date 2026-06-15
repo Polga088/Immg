@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CheckCircle2, FileText, Package, Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { CheckCircle2, FileText, Loader2, Package, Send } from "lucide-react";
 import { JobsKanban, type JobApplication } from "@/components/jobs-kanban";
 import type { ApplicationStatus, KanbanColumn } from "@/lib/jobs/constants";
 
@@ -19,6 +19,10 @@ interface JadeWorkflowProps {
     emptyColumn: string;
     preparePackage: string;
     preparing: string;
+    backgroundPreparing: string;
+    packageReady: string;
+    packageFailed: string;
+    noCv: string;
     validateSend: string;
     packageTitle: string;
     adaptedCv: string;
@@ -30,6 +34,7 @@ interface JadeWorkflowProps {
   };
   onStatusChange: (id: string, status: ApplicationStatus) => Promise<void>;
   onRefresh: () => void;
+  onPackageReady?: (app: JobApplication) => void;
 }
 
 export function JadeWorkflow({
@@ -40,8 +45,8 @@ export function JadeWorkflow({
   labels,
   onStatusChange,
   onRefresh,
+  onPackageReady,
 }: JadeWorkflowProps) {
-  const [preparingId, setPreparingId] = useState<string | null>(null);
   const [packageModal, setPackageModal] = useState<{
     app: JobApplication;
     adaptedCv: string;
@@ -49,35 +54,53 @@ export function JadeWorkflow({
     fitScore: number;
   } | null>(null);
   const [sending, setSending] = useState(false);
+  const notifiedReady = useRef<Set<string>>(new Set());
 
-  async function preparePackage(app: JobApplication) {
-    setPreparingId(app.id);
-    try {
-      const res = await fetch("/api/jobs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "preparePackage", id: app.id, locale }),
-      });
-      const data = await res.json();
-      if (data.application) {
-        setPackageModal({
-          app: data.application,
-          adaptedCv: data.application.adaptedCv ?? "",
-          coverLetter: data.application.coverLetter ?? "",
-          fitScore: data.fitScore ?? 0,
-        });
-        onRefresh();
+  const processingApps = applications.filter((a) => a.packageStatus === "processing");
+
+  useEffect(() => {
+    for (const app of applications) {
+      if (
+        app.packageStatus === "ready" &&
+        app.packageReady &&
+        app.adaptedCv &&
+        !notifiedReady.current.has(app.id)
+      ) {
+        notifiedReady.current.add(app.id);
+        onPackageReady?.(app);
       }
-    } finally {
-      setPreparingId(null);
     }
+  }, [applications, onPackageReady]);
+
+  async function startPreparePackage(app: JobApplication) {
+    const res = await fetch("/api/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "preparePackage", id: app.id, locale }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (data.error === "NO_CV") {
+      alert(labels.noCv);
+      return;
+    }
+    onRefresh();
+  }
+
+  function openPackageModal(app: JobApplication) {
+    if (!app.adaptedCv || !app.coverLetter) return;
+    setPackageModal({
+      app,
+      adaptedCv: app.adaptedCv,
+      coverLetter: app.coverLetter,
+      fitScore: app.fitScore ?? 0,
+    });
   }
 
   async function createGmailDraft() {
     if (!packageModal) return;
     setSending(true);
     try {
-      await fetch("/api/jobs", {
+      const res = await fetch("/api/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,6 +109,7 @@ export function JadeWorkflow({
           locale,
         }),
       });
+      if (!res.ok) return;
       onRefresh();
       setPackageModal(null);
     } finally {
@@ -101,30 +125,66 @@ export function JadeWorkflow({
       </h2>
       <p className="text-xs text-zinc-500">{labels.disclaimer}</p>
 
+      {processingApps.length > 0 && (
+        <div className="flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-900">
+          <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+          {labels.backgroundPreparing} ({processingApps.map((a) => a.title).join(", ")})
+        </div>
+      )}
+
       <div className="space-y-3 mb-4">
         {applications
-          .filter((a) => a.status === "draft" || !a.coverLetter)
-          .slice(0, 5)
-          .map((app) => (
-            <div
-              key={app.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-100 bg-amber-50/50 p-3"
-            >
-              <div>
-                <p className="text-sm font-medium">{app.title}</p>
-                <p className="text-xs text-zinc-500">{app.company}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => void preparePackage(app)}
-                disabled={preparingId === app.id}
-                className="text-xs rounded-full bg-amber-500 px-4 py-2 text-white hover:bg-amber-600 disabled:opacity-50 flex items-center gap-1"
+          .filter((a) => a.status === "draft" || !a.packageReady)
+          .slice(0, 8)
+          .map((app) => {
+            const isProcessing = app.packageStatus === "processing";
+            const isFailed = app.packageStatus === "failed";
+            const isReady = app.packageStatus === "ready" && app.packageReady;
+
+            return (
+              <div
+                key={app.id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-100 bg-amber-50/50 p-3"
               >
-                <FileText className="h-3 w-3" />
-                {preparingId === app.id ? labels.preparing : labels.preparePackage}
-              </button>
-            </div>
-          ))}
+                <div>
+                  <p className="text-sm font-medium">{app.title}</p>
+                  <p className="text-xs text-zinc-500">{app.company}</p>
+                  {isFailed && (
+                    <p className="text-xs text-red-600 mt-1">
+                      {labels.packageFailed}
+                      {app.packageError ? `: ${app.packageError}` : ""}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {isReady ? (
+                    <button
+                      type="button"
+                      onClick={() => openPackageModal(app)}
+                      className="text-xs rounded-full bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 flex items-center gap-1"
+                    >
+                      <CheckCircle2 className="h-3 w-3" />
+                      {labels.packageReady}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => void startPreparePackage(app)}
+                      disabled={isProcessing}
+                      className="text-xs rounded-full bg-amber-500 px-4 py-2 text-white hover:bg-amber-600 disabled:opacity-50 flex items-center gap-1"
+                    >
+                      {isProcessing ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <FileText className="h-3 w-3" />
+                      )}
+                      {isProcessing ? labels.preparing : labels.preparePackage}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
       </div>
 
       <JobsKanban

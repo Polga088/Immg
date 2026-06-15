@@ -19,3 +19,6 @@ export function isValidApplicationStatus(status: string): status is ApplicationS
 export function isKanbanColumn(status: string): status is KanbanColumn {
   return (KANBAN_COLUMNS as readonly string[]).includes(status);
 }
+
+export const PACKAGE_STATUSES = ["idle", "processing", "ready", "failed"] as const;
+export type PackageStatus = (typeof PACKAGE_STATUSES)[number];

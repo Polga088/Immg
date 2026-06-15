@@ -168,7 +168,10 @@
       "disconnect": "Déconnecter",
       "serviceUnavailable": "Connexion Google temporairement indisponible. Réessayez plus tard.",
       "syncAlerts": "Importer alertes emploi",
-      "oneClickHint": "Connectez vos comptes en un clic. Vos mots de passe restent chez Google — Immg ne les stocke jamais."
+      "oneClickHint": "Connectez vos comptes en un clic. Vos mots de passe restent chez Google — Immg ne les stocke jamais.",
+      "oauthConnected": "Gmail connecté avec succès. Vous pouvez importer vos alertes emploi.",
+      "oauthFailed": "Échec de la connexion Google. Réessayez ou contactez le support.",
+      "syncFailed": "Impossible d'importer les alertes. Vérifiez que Gmail est bien connecté."
     },
     "opportunities": {
       "title": "Opportunités pour vous",
@@ -198,6 +201,11 @@
       "title": "Préparation & envoi",
       "preparePackage": "Préparer dossier (CV + lettre)",
       "preparing": "Préparation IA…",
+      "backgroundPreparing": "Génération en cours en arrière-plan — vous pouvez changer d'onglet",
+      "packageReady": "Voir le dossier prêt",
+      "packageFailed": "Échec de la génération",
+      "noCv": "Uploadez d'abord votre CV dans la section CV pour générer un dossier.",
+      "packageReadyToast": "Dossier prêt pour",
       "validateSend": "Valider et créer brouillon Gmail",
       "packageTitle": "Dossier candidature — validation requise",
       "adaptedCv": "CV adapté à l'offre",

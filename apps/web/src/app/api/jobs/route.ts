@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { prisma } from "@immg/db";
 import {
   AuthError,
@@ -17,6 +18,7 @@ import {
   createApplicationDraftEmail,
   prepareApplicationPackage,
 } from "@/lib/jobs/workflow";
+import { runPackageGeneration, startPackageGeneration } from "@/lib/jobs/package-runner";
 
 export async function GET() {
   try {
@@ -84,6 +86,25 @@ export async function POST(req: Request) {
     }
 
     if (action === "preparePackage") {
+      const { started, packageStatus } = await startPackageGeneration(
+        userId,
+        body.id,
+        locale,
+      );
+
+      if (started) {
+        after(async () => {
+          await runPackageGeneration(userId, body.id, locale);
+        });
+      }
+
+      return Response.json(
+        { started, packageStatus, message: "PACKAGE_PROCESSING" },
+        { status: started ? 202 : 200 },
+      );
+    }
+
+    if (action === "preparePackageSync") {
       const result = await prepareApplicationPackage(userId, body.id, locale);
       return Response.json(result);
     }
@@ -117,6 +138,9 @@ export async function POST(req: Request) {
       }
       if (error.message === "NO_CV") {
         return Response.json({ error: "NO_CV" }, { status: 400 });
+      }
+      if (error.message === "Application not found") {
+        return Response.json({ error: "NOT_FOUND" }, { status: 404 });
       }
       if (error.message === "NO_RECRUITER_EMAIL") {
         return Response.json({ error: "NO_RECRUITER_EMAIL" }, { status: 400 });

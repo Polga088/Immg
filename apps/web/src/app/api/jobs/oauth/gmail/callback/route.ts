@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "@immg/db";
+import { getAppBaseUrl } from "@/lib/app-url";
 import {
   exchangeGmailCode,
   fetchGmailAccountEmail,
@@ -11,7 +12,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
+  const baseUrl = getAppBaseUrl();
 
   if (!code || !state) {
     return NextResponse.redirect(`${baseUrl}/fr/jobs?error=oauth`);
@@ -21,15 +22,21 @@ export async function GET(req: Request) {
   const stored = cookieStore.get("gmail_oauth_state")?.value;
   cookieStore.delete("gmail_oauth_state");
 
-  if (!stored || !stored.startsWith(`${state}:`)) {
+  if (!stored) {
     return NextResponse.redirect(`${baseUrl}/fr/jobs?error=oauth_state`);
   }
 
-  const userId = stored.split(":")[1];
+  const [storedState, userId, locale = "fr"] = stored.split(":");
+  const jobsPath = `/${locale === "en" ? "en" : "fr"}/jobs`;
+
+  if (!storedState || storedState !== state || !userId) {
+    return NextResponse.redirect(`${baseUrl}${jobsPath}?error=oauth_state`);
+  }
+
   const google = getGoogleOAuthConfig();
 
   if (!google.configured) {
-    return NextResponse.redirect(`${baseUrl}/fr/jobs?error=oauth_config`);
+    return NextResponse.redirect(`${baseUrl}${jobsPath}?error=oauth_config`);
   }
 
   try {
@@ -59,8 +66,9 @@ export async function GET(req: Request) {
       },
     });
 
-    return NextResponse.redirect(`${baseUrl}/fr/jobs?gmail=connected`);
-  } catch {
-    return NextResponse.redirect(`${baseUrl}/fr/jobs?error=oauth_token`);
+    return NextResponse.redirect(`${baseUrl}${jobsPath}?gmail=connected`);
+  } catch (error) {
+    console.error("Gmail OAuth callback failed:", error);
+    return NextResponse.redirect(`${baseUrl}${jobsPath}?error=oauth_token`);
   }
 }

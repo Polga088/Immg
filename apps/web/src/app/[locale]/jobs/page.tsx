@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import { requireAuthWithProfile } from "@/lib/auth/guards";
@@ -26,7 +27,8 @@ export default async function JobsPage({
   ) as Record<KanbanColumn, string>;
 
   return (
-    <JadeHub
+    <Suspense>
+      <JadeHub
       locale={locale}
       title={t("title")}
       tabs={{
@@ -52,6 +54,9 @@ export default async function JobsPage({
         serviceUnavailable: t("connections.serviceUnavailable"),
         syncAlerts: t("connections.syncAlerts"),
         oneClickHint: t("connections.oneClickHint"),
+        oauthConnected: t("connections.oauthConnected"),
+        oauthFailed: t("connections.oauthFailed"),
+        syncFailed: t("connections.syncFailed"),
       }}
       opportunitiesLabels={{
         title: t("opportunities.title"),
@@ -86,6 +91,10 @@ export default async function JobsPage({
         emptyColumn: t("emptyColumn"),
         preparePackage: t("workflow.preparePackage"),
         preparing: t("workflow.preparing"),
+        backgroundPreparing: t("workflow.backgroundPreparing"),
+        packageReady: t("workflow.packageReady"),
+        packageFailed: t("workflow.packageFailed"),
+        noCv: t("workflow.noCv"),
         validateSend: t("workflow.validateSend"),
         packageTitle: t("workflow.packageTitle"),
         adaptedCv: t("workflow.adaptedCv"),
@@ -94,11 +103,13 @@ export default async function JobsPage({
         createDraft: t("workflow.createDraft"),
         close: t("workflow.close"),
         disclaimer: t("workflow.disclaimer"),
+        packageReadyToast: t("workflow.packageReadyToast"),
       }}
       chatPlaceholder={chat("placeholder")}
       chatSend={chat("send")}
       chatThinking={chat("thinking")}
       chatError={chat("error")}
-    />
+      />
+    </Suspense>
   );
 }
